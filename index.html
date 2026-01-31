@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Math Arena V24: Layout Fix</title>
+    <title>Math Arena V25: Live Fix</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -19,17 +19,15 @@
         .font-display { font-family: 'Black Ops One', cursive; }
         .neon-text { text-shadow: 0 0 10px #22d3ee; }
         
-        /* UI Components */
         .btn-primary { @apply bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(8,145,178,0.5)] transform transition active:scale-95 w-full mb-4 text-2xl; }
         .btn-topic { @apply bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-cyan-400 font-bold py-6 rounded-2xl shadow-lg transition-all active:scale-95 flex flex-col items-center justify-center gap-2; }
         .avatar-btn { @apply text-6xl p-6 rounded-2xl border-4 border-slate-700 transition-all cursor-pointer grayscale opacity-60 bg-slate-800 flex items-center justify-center; }
         .avatar-btn.selected { @apply grayscale-0 opacity-100 scale-110 z-10 text-black; background-color: #fbbf24; border-color: #f59e0b; box-shadow: 0 0 30px rgba(251, 191, 36, 0.8); }
         .key-btn { @apply active:scale-95 transition-transform shadow-lg text-3xl font-bold rounded-xl border-b-4 border-slate-950 active:border-b-0 active:translate-y-1; }
         
-        /* Host List Item - More Compact for V24 */
-        .lane-item { @apply w-full bg-slate-800 rounded-xl flex items-center px-4 py-2 border border-slate-600 shadow-md mb-2 transition-all; }
+        /* 修正後的列表樣式 */
+        .lane-item { @apply w-full bg-slate-800 rounded-xl flex items-center px-4 py-2 border border-slate-600 shadow-md mb-2; }
         
-        /* Canvas Layout */
         #canvas-container { position: relative; width: 100%; height: 100%; flex: 1; overflow: hidden; background-color: #1e293b; border-radius: 0 0 1rem 1rem; }
         canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         
@@ -40,7 +38,7 @@
 
     <div id="view-menu" class="text-center p-8 w-full max-w-2xl hidden flex-col items-center z-50">
         <h1 class="text-8xl font-display italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4 neon-text">MATH<br>ARENA</h1>
-        <div class="text-3xl text-slate-400 font-display mb-12">HK S1 V24</div>
+        <div class="text-3xl text-slate-400 font-display mb-12">HK S1 V25 (FIXED)</div>
         <div id="db-status" class="text-lg text-red-500 font-bold mb-8">🔴 Connecting...</div>
         <button onclick="setupHost()" class="btn-primary border-l-8 border-cyan-300 text-3xl py-8">📡 HOST GAME</button>
     </div>
@@ -92,7 +90,7 @@
             <div class="font-display text-4xl italic text-slate-300">LIVE RANKING</div>
             <div class="text-7xl font-mono font-bold text-cyan-400 neon-text" id="host-timer-display">00:00</div>
         </div>
-        <div class="flex-1 overflow-y-auto px-4 pb-32 space-y-2 scroll-smooth" id="lanes-container"></div>
+        <div class="flex-1 w-full overflow-y-auto px-4 pb-32 space-y-2" id="lanes-container" style="-webkit-overflow-scrolling: touch;"></div>
         
         <div id="host-status-msg" class="absolute bottom-1/2 left-0 w-full text-center pointer-events-none opacity-0 transition-opacity duration-500 z-50">
             <span class="bg-black/90 text-yellow-400 px-12 py-6 rounded-full text-5xl font-bold border-4 border-yellow-500 shadow-2xl backdrop-blur-sm">🛑 TIME UP</span>
@@ -258,30 +256,30 @@
             } else { document.getElementById('host-timer-display').innerText = "RACE"; }
         }, 500);
 
+        // LIVE RANKING - Reverted to String Concatenation (V20 Style) for stability
         db.ref(`games/${state.gid}/players`).on('value', snap => {
             const arr = []; 
             if(snap.exists()) snap.forEach(c => arr.push(c.val()));
             arr.sort((a,b) => (b.score||0)-(a.score||0));
             
-            const max = state.settings.mode==='score' ? state.settings.target : Math.max(state.settings.target*10, (arr[0]?.score||0)*1.2);
+            const max = state.settings.mode==='score' ? state.settings.target : Math.max(state.settings.target*10, (arr[0]?.score||0)*1.2, 1);
             if(state.settings.mode==='score' && arr[0]?.score >= state.settings.target) { clearInterval(timerLoop); finishGame(); }
 
-            const con = document.getElementById('lanes-container');
-            con.innerHTML = ''; 
-            arr.forEach((p, i) => {
+            // FIX: Using map().join('') guarantees all players are rendered
+            const html = arr.map(p => {
                 const width = Math.min(100, (p.score/max)*100);
-                const item = document.createElement('div');
-                item.className = 'lane-item';
-                item.innerHTML = `
+                return `
+                <div class="lane-item">
                     <div class="w-12 text-4xl mr-4">${p.avatar}</div>
                     <div class="w-32 truncate font-bold text-xl text-slate-300">${p.name}</div>
                     <div class="flex-1 h-6 bg-slate-900 rounded-full mx-4 border border-slate-700 overflow-hidden relative">
-                        <div class="h-full bg-cyan-500 shadow-[0_0_15px_#06b6d4]" style="width:${width}%"></div>
+                        <div class="h-full bg-cyan-500 shadow-[0_0_15px_#06b6d4] transition-all duration-500" style="width:${width}%"></div>
                     </div>
                     <div class="w-24 text-right font-mono font-bold text-cyan-400 text-3xl">${p.score}</div>
-                `;
-                con.appendChild(item);
-            });
+                </div>`;
+            }).join('');
+            
+            document.getElementById('lanes-container').innerHTML = html;
         });
     }
 
@@ -416,7 +414,7 @@
     function draw() {
         const w=cvs.width, h=cvs.height;
         const cx=w/2; 
-        // FIX: Moved question position UP (35% from top instead of 50%)
+        // V24/25 Feature: Positioned high (35%)
         const cy=h*0.35; 
 
         if(w===0 || h===0) return;
