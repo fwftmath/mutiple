@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Arena V29: Full Modes</title>
+    <title>Math Arena V30: S1 Ultimate</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -17,7 +17,6 @@
         body { background-color: #050510; color: white; touch-action: none; user-select: none; font-family: 'Roboto Mono', monospace; overflow: hidden; overscroll-behavior-y: contain; }
         .font-display { font-family: 'Black Ops One', cursive; }
         .neon-text { text-shadow: 0 0 10px #22d3ee; }
-        .neon-gold { text-shadow: 0 0 15px #fbbf24; }
         
         .lane-item { position: absolute; left: 0; right: 0; transition: top 0.5s ease-in-out; }
         .progress-bar { transition: width 0.3s linear; }
@@ -28,9 +27,9 @@
         .avatar-btn.selected { @apply bg-slate-800 grayscale-0 opacity-100 scale-110 z-10; border-color: #fbbf24; box-shadow: 0 0 20px 5px rgba(251, 191, 36, 0.6); }
         .avatar-btn.taken { @apply opacity-20 cursor-not-allowed border-red-900 bg-slate-900 scale-90 grayscale; }
         
-        /* V29 新增：運算符號按鈕樣式 */
-        .op-btn { @apply border border-slate-600 text-slate-400 py-2 rounded text-xl font-bold transition-all; }
-        .op-btn.active { @apply border-cyan-500 text-white bg-cyan-900/80 shadow-[0_0_10px_rgba(34,211,238,0.3)]; }
+        /* Topic Selection Buttons */
+        .topic-btn { @apply border border-slate-600 text-slate-300 py-3 rounded text-sm font-bold transition-all bg-slate-800 hover:bg-slate-700; }
+        .topic-btn.active { @apply border-cyan-400 text-white bg-cyan-900 shadow-[0_0_10px_rgba(34,211,238,0.3)] ring-1 ring-cyan-400; }
 
         #view-game { z-index: 10; }
         #game-freeze-overlay { z-index: 50; }
@@ -41,55 +40,48 @@
 <body class="h-screen flex flex-col items-center justify-center bg-[#050510]">
 
     <div id="view-menu" class="text-center space-y-6 p-4 max-w-md w-full hidden z-50">
-        <h1 class="text-6xl font-display italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-2 neon-text">MATH<br>ARENA</h1>
+        <h1 class="text-5xl font-display italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-2 neon-text">MATH<br>ARENA S1</h1>
         <div id="db-status" class="text-xs text-red-500 font-bold mb-4">🔴 Connecting...</div>
-        <button onclick="setupHost()" class="btn-primary border-l-4 border-cyan-300 text-xl py-6">📡 HOST GAME</button>
+        <button onclick="setupHost()" class="btn-primary border-l-4 border-cyan-300 text-xl py-6">📡 HOST CLASS</button>
     </div>
 
-    <div id="view-host-lobby" class="w-full h-full p-6 hidden flex-col max-w-4xl mx-auto">
-        <h2 class="text-3xl text-cyan-400 font-display mb-4 border-b border-slate-700 pb-2">LOBBY</h2>
+    <div id="view-host-lobby" class="w-full h-full p-6 hidden flex-col max-w-5xl mx-auto">
+        <h2 class="text-3xl text-cyan-400 font-display mb-4 border-b border-slate-700 pb-2">CLASSROOM CONTROL</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
             <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col items-center relative">
                 <div class="bg-white p-2 rounded-lg mb-2"><div id="qrcode"></div></div>
-                <div class="text-xl font-bold text-white mb-2" id="join-count-display">0 PLAYERS</div>
+                <div class="text-xl font-bold text-white mb-2" id="join-count-display">0 STUDENTS</div>
                 <div id="player-grid" class="mt-2 flex flex-wrap justify-center gap-2 w-full max-h-48 overflow-y-auto content-start"></div>
             </div>
             
             <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col overflow-y-auto">
                 
-                <div class="mb-4">
-                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase">Game Type</label>
-                    <div class="grid grid-cols-5 gap-1">
-                        <button class="op-btn" onclick="setOp('add')" id="btn-op-add">+</button>
-                        <button class="op-btn" onclick="setOp('sub')" id="btn-op-sub">−</button>
-                        <button class="op-btn" onclick="setOp('mul')" id="btn-op-mul">×</button>
-                        <button class="op-btn" onclick="setOp('div')" id="btn-op-div">÷</button>
-                        <button class="op-btn active" onclick="setOp('mixed')" id="btn-op-mixed">ALL</button>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase">Win Condition</label>
+                <div class="mb-5">
+                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase tracking-widest">Select S1 Topic</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="btn-mode-score" class="border border-slate-600 text-slate-400 py-2 rounded text-sm" onclick="setMode('score')">🏁 Score Race</button>
-                        <button id="btn-mode-time" class="border border-cyan-500 text-cyan-400 bg-cyan-900/50 py-2 rounded text-sm" onclick="setMode('time')">⏱️ Timer Mode</button>
+                        <button class="topic-btn active" onclick="setTopic('integers')" id="btn-topic-integers">🔢 Integers (+/-)</button>
+                        <button class="topic-btn" onclick="setTopic('algebra')" id="btn-topic-algebra">✖️ Algebra (Eqn)</button>
+                        <button class="topic-btn" onclick="setTopic('percent')" id="btn-topic-percent">％ Percentages</button>
+                        <button class="topic-btn" onclick="setTopic('geometry')" id="btn-topic-geometry">📐 Area & Vol</button>
+                        <button class="topic-btn" onclick="setTopic('coords')" id="btn-topic-coords">📍 Coordinates</button>
+                        <button class="topic-btn" onclick="setTopic('mixed')" id="btn-topic-mixed">🎲 S1 Mixed</button>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase" id="setting-label">TIME LIMIT</label>
+                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase">Time Limit</label>
                     <input type="range" id="setting-slider" class="w-full h-2 bg-slate-700 rounded-lg cursor-pointer accent-cyan-500">
                     <div class="text-right text-cyan-400 text-xl font-bold mt-1" id="setting-value">60 SEC</div>
                 </div>
 
-                <button id="btn-host-start" onclick="hostStartGame()" class="btn-primary mt-auto bg-gradient-to-r from-green-500 to-emerald-600 text-xl py-3" disabled>⏳ WAIT (0/2)</button>
+                <button id="btn-host-start" onclick="hostStartGame()" class="btn-primary mt-auto bg-gradient-to-r from-green-500 to-emerald-600 text-xl py-3" disabled>⏳ WAIT FOR STUDENTS</button>
             </div>
         </div>
     </div>
 
     <div id="view-host-game" class="w-full h-full p-4 hidden flex-col bg-slate-950 relative">
         <div class="flex justify-between items-center mb-4 px-4 py-2 bg-slate-900/80 rounded-lg border border-slate-700">
-            <div class="font-display text-2xl italic text-slate-300">LIVE RANKING</div>
+            <div class="font-display text-2xl italic text-slate-300">LEADERBOARD</div>
             <div class="text-4xl font-mono font-bold text-cyan-400 neon-text" id="host-timer-display">00:00</div>
             <div class="text-sm text-slate-500 font-bold" id="host-target-display">TIME LEFT</div>
         </div>
@@ -107,10 +99,8 @@
 
     <div id="view-avatar-select" class="text-center p-6 max-w-md w-full hidden z-50 flex-col">
         <h2 class="text-xl font-bold mb-4 text-cyan-400">SELECT AVATAR</h2>
-        <p class="text-xs text-slate-500 mb-4">Gray icons are taken</p>
         <div class="grid grid-cols-4 gap-4 mb-8" id="avatar-grid"></div>
         <button onclick="confirmJoin()" class="btn-primary" id="btn-join-confirm" disabled>READY</button>
-        <button onclick="showView('view-join')" class="text-slate-500 underline mt-2">BACK</button>
     </div>
 
     <div id="view-student-wait" class="text-center p-6 w-full hidden z-50">
@@ -126,7 +116,6 @@
         <div id="game-freeze-overlay" class="absolute inset-0 bg-slate-950/95 z-40 hidden flex flex-col items-center justify-center">
             <div class="text-6xl mb-4">🛑</div>
             <h2 class="text-4xl font-display text-red-500 mb-2 neon-text">TIME UP!</h2>
-            <p class="text-white animate-pulse">Calculating Results...</p>
         </div>
         <div class="h-12 bg-slate-950 border-b border-slate-800 flex justify-between items-center px-4">
             <div class="text-cyan-400 font-bold" id="client-score">0 PTS</div>
@@ -138,22 +127,26 @@
         </div>
         <div class="bg-slate-900 border-t border-slate-800 p-2 h-[45vh] grid grid-rows-[auto_1fr] gap-2 z-10 shrink-0">
             <div class="bg-slate-800/50 rounded p-2 flex flex-col justify-center items-center relative border border-slate-700">
-                <div id="input-display" class="text-3xl font-mono font-bold tracking-[0.5em] text-white">_</div>
-                <div id="hint-display" class="text-xs text-yellow-500/80 font-mono"></div>
+                <div id="input-display" class="text-3xl font-mono font-bold tracking-[0.2em] text-white">_</div>
             </div>
-            <div class="grid grid-cols-3 gap-1 h-full pb-safe">
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('7')">7</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('8')">8</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('9')">9</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('4')">4</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('5')">5</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('6')">6</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('1')">1</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('2')">2</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('3')">3</button>
-                <button class="bg-rose-900/40 text-rose-500 rounded font-bold active:bg-rose-900" onclick="input('DEL')">DEL</button>
-                <button class="bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700" onclick="input('0')">0</button>
-                <button class="bg-gradient-to-b from-emerald-600 to-emerald-800 text-white rounded font-bold text-xl active:translate-y-1" onclick="checkAnswer()">GO</button>
+            <div class="grid grid-cols-4 gap-1 h-full pb-safe">
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('7')">7</button>
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('8')">8</button>
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('9')">9</button>
+                <button class="bg-slate-700 text-red-300 rounded text-xl font-bold active:bg-red-900" onclick="input('DEL')">⌫</button>
+                
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('4')">4</button>
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('5')">5</button>
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('6')">6</button>
+                <button class="bg-slate-700 text-yellow-300 rounded text-xl font-bold active:bg-slate-600" onclick="input('-')">(-)</button>
+                
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('1')">1</button>
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('2')">2</button>
+                <button class="bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('3')">3</button>
+                <button class="bg-slate-700 text-yellow-300 rounded text-xl font-bold active:bg-slate-600" onclick="input('.')">.</button>
+                
+                <button class="col-span-2 bg-slate-800 text-cyan-100 rounded text-xl font-bold active:bg-cyan-700" onclick="input('0')">0</button>
+                <button class="col-span-2 bg-gradient-to-b from-emerald-600 to-emerald-800 text-white rounded font-bold text-xl active:translate-y-1" onclick="checkAnswer()">ENTER</button>
             </div>
         </div>
     </div>
@@ -183,17 +176,17 @@
     </div>
 
     <div id="view-rankings" class="w-full h-full hidden z-[101] bg-slate-950 absolute inset-0 flex flex-col p-6">
-        <h2 class="text-3xl font-display text-cyan-400 text-center mb-6">FINAL STANDINGS</h2>
+        <h2 class="text-3xl font-display text-cyan-400 text-center mb-6">FINAL RESULTS</h2>
         <div class="flex-1 overflow-y-auto bg-slate-900/50 rounded-xl border border-slate-800 p-4 max-w-2xl mx-auto w-full">
             <table class="w-full text-left border-collapse">
                 <thead class="text-slate-500 border-b border-slate-700">
-                    <tr><th class="p-2">#</th><th class="p-2">PLAYER</th><th class="p-2 text-right">SCORE</th></tr>
+                    <tr><th class="p-2">#</th><th class="p-2">STUDENT</th><th class="p-2 text-right">SCORE</th></tr>
                 </thead>
                 <tbody id="ranking-list-body"></tbody>
             </table>
         </div>
         <div id="host-restart-area" class="mt-4 text-center hidden">
-            <button onclick="backToMenu()" class="btn-primary max-w-xs bg-slate-700 hover:bg-slate-600 border border-slate-500">🏠 NEW GAME</button>
+            <button onclick="backToMenu()" class="btn-primary max-w-xs bg-slate-700 hover:bg-slate-600 border border-slate-500">🏠 NEW CLASS</button>
         </div>
     </div>
 
@@ -212,7 +205,7 @@
     const savedName = sessionStorage.getItem('ma_name');
     const savedAvatar = sessionStorage.getItem('ma_avatar');
     
-    // V29: 新增 'op' (operation) 默認為 mixed
+    // V30: S1 Topics
     let state = {
         role: 'none', 
         gameId: new URLSearchParams(window.location.search).get('gid'),
@@ -221,7 +214,7 @@
         avatar: savedAvatar || '',
         score: 0, 
         active: false,
-        settings: { mode: 'time', target: 60, op: 'mixed' }, // V29 Default
+        settings: { mode: 'time', target: 60, topic: 'integers' }, 
         q: null, input: '', endTime: 0,
         hostLoop: null
     };
@@ -252,7 +245,6 @@
             });
 
             if (state.gameId && savedPid) {
-                console.log("♻️ 恢復 V29 連線中...");
                 confirmJoin(true); 
             } else if (state.gameId) {
                 showView('view-join');
@@ -268,13 +260,16 @@
         state.role = 'host';
         showView('view-host-lobby');
         
-        // V29: 更新 Slider 監聽
         const slider = document.getElementById('setting-slider');
-        slider.oninput = () => updateSettingsDisplay();
+        slider.oninput = () => {
+            state.settings.target = parseInt(slider.value);
+            document.getElementById('setting-value').innerText = state.settings.target+" SEC";
+            if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
+        };
         
-        // 初始化 V29 默認設置
-        setMode('time');
-        setOp('mixed');
+        // Defaults
+        slider.min=30; slider.max=180; slider.step=10; slider.value=60;
+        setTopic('integers');
 
         const ref = db.ref('games').push();
         state.gameId = ref.key;
@@ -291,82 +286,50 @@
             snap.forEach(c => {
                 count++;
                 const p = c.val();
-                grid.innerHTML += `<div class="bg-slate-800 px-3 py-2 rounded-lg border border-slate-600 text-sm flex items-center gap-2 animate-[pop_0.3s]"><span class="text-xl">${p.avatar}</span><span class="font-bold text-white">${p.name}</span><button onclick="kickPlayer('${c.key}')" class="kick-btn">❌</button></div>`;
+                grid.innerHTML += `<div class="bg-slate-800 px-3 py-2 rounded-lg border border-slate-600 text-sm flex items-center gap-2 animate-[pop_0.3s]"><span class="text-xl">${p.avatar}</span><span class="font-bold text-white">${p.name}</span><button onclick="kickPlayer('${c.key}')" class="kick-btn text-red-500 ml-2">❌</button></div>`;
             });
-            document.getElementById('join-count-display').innerText = `${count} PLAYERS`;
+            document.getElementById('join-count-display').innerText = `${count} STUDENTS`;
             
             const startBtn = document.getElementById('btn-host-start');
-            if(count < 2) {
+            if(count < 1) { // Dev mode: allow 1
                 startBtn.disabled = true;
-                startBtn.innerHTML = `⏳ WAIT (${count}/2)`;
+                startBtn.innerHTML = `⏳ WAIT (${count})`;
                 startBtn.className = "btn-primary mt-auto bg-slate-700 text-slate-500 cursor-not-allowed opacity-50";
             } else {
                 startBtn.disabled = false;
-                startBtn.innerHTML = "🚀 START GAME";
+                startBtn.innerHTML = "🚀 START CLASS";
                 startBtn.className = "btn-primary mt-auto bg-gradient-to-r from-green-500 to-emerald-600 text-xl py-3";
             }
         });
     }
 
-    window.kickPlayer = (pid) => { if(confirm("Kick player?")) db.ref(`games/${state.gameId}/players/${pid}`).remove(); };
+    window.kickPlayer = (pid) => { if(confirm("Remove student?")) db.ref(`games/${state.gameId}/players/${pid}`).remove(); };
 
-    function updateSettingsDisplay() {
-        const slider = document.getElementById('setting-slider');
-        state.settings.target = parseInt(slider.value);
-        document.getElementById('setting-value').innerText = state.settings.mode==='score' ? state.settings.target+" PTS" : state.settings.target+" SEC";
+    function setTopic(topic) {
+        state.settings.topic = topic;
+        document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-topic-${topic}`).classList.add('active');
         if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
-    }
-
-    // V29: 新增運算符號選擇
-    function setOp(op) {
-        state.settings.op = op;
-        document.querySelectorAll('.op-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-op-${op}`).classList.add('active');
-        if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
-    }
-
-    function setMode(mode) {
-        state.settings.mode = mode;
-        const slider = document.getElementById('setting-slider');
-        document.getElementById('btn-mode-score').className = mode==='score' ? "border border-cyan-500 text-cyan-400 bg-cyan-900/50 py-2 rounded text-sm" : "border border-slate-600 text-slate-400 py-2 rounded text-sm";
-        document.getElementById('btn-mode-time').className = mode==='time' ? "border border-cyan-500 text-cyan-400 bg-cyan-900/50 py-2 rounded text-sm" : "border border-slate-600 text-slate-400 py-2 rounded text-sm";
-        
-        if(mode==='score') { 
-            document.getElementById('setting-label').innerText="TARGET SCORE"; slider.min=500; slider.max=5000; slider.step=100; slider.value=1000; 
-        } else { 
-            // V29: 時間範圍改為 20 - 180
-            document.getElementById('setting-label').innerText="TIME LIMIT"; slider.min=20; slider.max=180; slider.step=10; slider.value=60; 
-        }
-        updateSettingsDisplay();
     }
 
     function hostStartGame() {
-        const count = parseInt(document.getElementById('join-count-display').innerText);
-        if(count < 2) return alert("Need at least 2 players!");
-
         const updateData = { status: 'playing', startTime: Date.now() };
-        if(state.settings.mode === 'time') {
-            state.endTime = Date.now() + (state.settings.target * 1000);
-            updateData.endTime = state.endTime;
-        }
+        state.endTime = Date.now() + (state.settings.target * 1000);
+        updateData.endTime = state.endTime;
+        
         db.ref(`games/${state.gameId}`).update(updateData);
         showView('view-host-game');
-        document.getElementById('host-target-display').innerText = state.settings.mode==='score' ? `TARGET: ${state.settings.target}` : "TIME LEFT";
-        startLocalTicker(state.settings.mode === 'time' ? state.endTime : null, 'host-timer-display');
+        startLocalTicker(state.endTime, 'host-timer-display');
         
         if (state.hostLoop) clearInterval(state.hostLoop);
-        state.hostLoop = setInterval(hostGameLoopTick, 1000);
-        
-        monitorGameUpdates();
-    }
-
-    function hostGameLoopTick() {
-        if (state.settings.mode === 'time') {
+        state.hostLoop = setInterval(() => {
             if (Date.now() >= state.endTime) {
                 clearInterval(state.hostLoop);
                 executeGameFinish();
             }
-        }
+        }, 1000);
+        
+        monitorGameUpdates();
     }
 
     function monitorGameUpdates() {
@@ -383,10 +346,7 @@
 
             if(game.players) {
                 const players = Object.values(game.players).sort((a,b)=>(b.score||0)-(a.score||0));
-                if (state.role==='host' && game.status==='playing' && game.settings.mode==='score' && players[0].score >= game.settings.target) {
-                    executeGameFinish();
-                }
-                renderLanes(players, game.settings.target, game.settings.mode);
+                renderLanes(players, game.settings.target);
             }
         });
     }
@@ -410,12 +370,15 @@
         }, 1500);
     }
 
-    function renderLanes(players, target, mode) {
+    function renderLanes(players, target) {
         const container = document.getElementById('lanes-container');
-        const maxScore = mode==='score' ? target : Math.max(target*5, (players[0].score||0)*1.2);
+        // Dynamic scaling based on highest score
+        const topScore = players[0]?.score || 100;
+        const maxScale = Math.max(1000, topScore * 1.2);
+        
         players.forEach((p, index) => {
             let el = document.getElementById(`lane-${p.name}`);
-            const pct = Math.min(100, ((p.score||0)/maxScore)*100);
+            const pct = Math.min(100, ((p.score||0)/maxScale)*100);
             if (!el) {
                 el = document.createElement('div');
                 el.id = `lane-${p.name}`;
@@ -448,7 +411,8 @@
             btn.onclick = () => selectAvatar(av, idx);
             grid.appendChild(btn);
         });
-
+        
+        // Check taken avatars
         db.ref(`games/${state.gameId}/players`).on('value', snap => {
             document.querySelectorAll('.avatar-btn').forEach(b => {
                 if(!b.classList.contains('selected')) b.classList.remove('taken');
@@ -527,7 +491,7 @@
         updateTime();
         localTimerInterval = setInterval(updateTime, 200);
         function updateTime() {
-            if(!endTime) { el.innerText = "RACE"; return; }
+            if(!endTime) return;
             const left = Math.ceil((endTime - Date.now()) / 1000);
             if(left <= 0) {
                 el.innerText = "00:00";
@@ -538,41 +502,107 @@
         }
     }
 
-    // ================= GAMEPLAY GENERATION (V29: Full Modes) =================
+    // ================= S1 MATH QUESTION GENERATOR =================
     
     function generateQuestion() {
-        const op = state.settings.op || 'mixed';
-        let types = [];
+        const topic = state.settings.topic || 'mixed';
+        let t = topic;
         
-        if (op === 'mixed') types = ['add', 'sub', 'mul', 'div'];
-        else types = [op];
-
-        const type = types[Math.floor(Math.random() * types.length)];
-        let a, b, ans;
-
-        if (type === 'add') {
-            a = Math.floor(Math.random() * 50) + 10;
-            b = Math.floor(Math.random() * 50) + 10;
-            ans = a + b;
-            state.qText = `${a} + ${b} = ?`;
-        } 
-        else if (type === 'sub') {
-            a = Math.floor(Math.random() * 50) + 20;
-            b = Math.floor(Math.random() * (a - 10)) + 5;
-            ans = a - b;
-            state.qText = `${a} - ${b} = ?`;
+        if (topic === 'mixed') {
+            const types = ['integers', 'algebra', 'percent', 'geometry', 'coords'];
+            t = types[Math.floor(Math.random() * types.length)];
         }
-        else if (type === 'mul') {
-            a = Math.floor(Math.random() * 9) + 2;
-            b = Math.floor(Math.random() * 9) + 2;
-            ans = a * b;
-            state.qText = `${a} × ${b} = ?`;
+
+        let qStr = "";
+        let ans = 0;
+
+        // 1. Directed Numbers (正負數)
+        if (t === 'integers') {
+            const a = rInt(-10, 15);
+            const b = rInt(-10, 15);
+            const op = Math.random() > 0.5 ? '+' : '-';
+            if(op === '+') ans = a + b;
+            else ans = a - b;
+            
+            // Format: -5 + (-3)
+            const aStr = a < 0 ? `(${a})` : a;
+            const bStr = b < 0 ? `(${b})` : b;
+            qStr = `${aStr} ${op} ${bStr} = ?`;
         }
-        else if (type === 'div') {
-            ans = Math.floor(Math.random() * 9) + 2; // 答案
-            b = Math.floor(Math.random() * 9) + 2;   // 除數
-            a = ans * b;                             // 被除數
-            state.qText = `${a} ÷ ${b} = ?`;
+        
+        // 2. Linear Equations (一元一次方程)
+        else if (t === 'algebra') {
+            const type = Math.random();
+            const x = rInt(2, 12); // The answer x
+            if (type < 0.33) {
+                // ax = b
+                const a = rInt(2, 6);
+                const b = a * x;
+                qStr = `${a}x = ${b}, x = ?`;
+                ans = x;
+            } else if (type < 0.66) {
+                // x + a = b
+                const a = rInt(5, 20);
+                const b = x + a;
+                qStr = `x + ${a} = ${b}, x = ?`;
+                ans = x;
+            } else {
+                // ax + b = c
+                const a = rInt(2, 5);
+                const b = rInt(1, 10);
+                const c = (a * x) + b;
+                qStr = `${a}x + ${b} = ${c}, x = ?`;
+                ans = x;
+            }
+        }
+        
+        // 3. Percentages (百分數)
+        else if (t === 'percent') {
+            const base = rInt(1, 10) * 100; // 100, 200...
+            const rate = rInt(1, 9) * 10;   // 10%, 20%...
+            ans = (rate / 100) * base;
+            qStr = `${rate}% of ${base} = ?`;
+        }
+        
+        // 4. Geometry (Area/Vol) - Text Based
+        else if (t === 'geometry') {
+            const shape = Math.random();
+            if (shape < 0.4) {
+                const s = rInt(3, 12);
+                qStr = `Square side ${s}. Area?`;
+                ans = s * s;
+            } else if (shape < 0.8) {
+                const l = rInt(4, 10);
+                const w = rInt(2, 8);
+                qStr = `Rect ${l} by ${w}. Area?`;
+                ans = l * w;
+            } else {
+                const l = rInt(2, 6);
+                const w = rInt(2, 5);
+                const h = rInt(2, 5);
+                qStr = `Cuboid ${l}×${w}×${h}. Vol?`;
+                ans = l * w * h;
+            }
+        }
+        
+        // 5. Coordinates (坐標) - Q1-Q4 or Simple Logic
+        else if (t === 'coords') {
+            const type = Math.random();
+            if (type < 0.5) {
+                // Quadrant Check
+                let x = rInt(1, 9) * (Math.random()<.5?1:-1);
+                let y = rInt(1, 9) * (Math.random()<.5?1:-1);
+                qStr = `P(${x}, ${y}) is in Q?`;
+                if(x>0 && y>0) ans = 1;
+                else if(x<0 && y>0) ans = 2;
+                else if(x<0 && y<0) ans = 3;
+                else ans = 4;
+            } else {
+                // Distance to origin or simple math
+                const v = rInt(2, 9);
+                qStr = `Dist. from (${v}, 0) to O?`;
+                ans = v;
+            }
         }
 
         state.q = { ans: ans };
@@ -580,12 +610,16 @@
         updateInputDisplay();
     }
 
+    function rInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
     function input(val) {
         if(!state.active) return;
         if (val === 'DEL') {
             state.input = state.input.slice(0, -1);
         } else {
-            if (state.input.length < 6) {
+            if (state.input.length < 8) {
                 state.input += val;
                 playTone(800, 'sine', 0.05);
             }
@@ -600,8 +634,11 @@
 
     function checkAnswer() {
         if(!state.active) return;
-        const playerAns = parseInt(state.input);
-        if (playerAns === state.q.ans) {
+        // Allow float comparison
+        const playerAns = parseFloat(state.input);
+        const correct = Math.abs(playerAns - state.q.ans) < 0.01;
+
+        if (correct) {
             playTone(1200, 'triangle', 0.1);
             showFeedback('Correct!', 'text-green-400');
             state.score += 100;
@@ -650,37 +687,48 @@
     }
 
     function drawGame() {
-        if(!ctx || !state.qText) return;
+        if(!ctx || !state.q) return;
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
+        // Card
         ctx.fillStyle = '#1e293b'; 
-        const cardW = Math.min(300, canvas.width - 40);
-        const cardH = 160;
+        const cardW = Math.min(320, canvas.width - 20);
+        const cardH = 180;
         const cardX = (canvas.width - cardW) / 2;
         const cardY = (canvas.height - cardH) / 2;
         
         ctx.beginPath();
         ctx.roundRect(cardX, cardY, cardW, cardH, 20);
         ctx.fill();
-        ctx.lineWidth = 4;
         
+        // Border pulse
         const time = Date.now() / 1000;
+        ctx.lineWidth = 4;
         ctx.strokeStyle = `rgba(34, 211, 238, ${0.5 + Math.sin(time * 3) * 0.2})`;
         ctx.stroke();
 
-        ctx.font = 'bold 40px "Roboto Mono"';
+        // Text
+        const text = state.settings.topic === 'geometry' ? 24 : 32;
+        ctx.font = `bold ${text}px "Roboto Mono"`;
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(state.qText, canvas.width/2, canvas.height/2);
+        
+        // Split long text if geometry
+        const words = (state.qText || "").split('. ');
+        if(words.length > 1) {
+            ctx.fillText(words[0], canvas.width/2, canvas.height/2 - 20);
+            ctx.fillText(words[1], canvas.width/2, canvas.height/2 + 20);
+        } else {
+            ctx.fillText(state.qText, canvas.width/2, canvas.height/2);
+        }
     }
 
-    // ================= PODIUM & RESULTS =================
+    // ================= PODIUM =================
     function showPodiumSequence(fullList) {
         state.active = false;
         if(localTimerInterval) clearInterval(localTimerInterval);
-        
         showView('view-podium');
         renderPodium(fullList);
         
@@ -691,9 +739,7 @@
             if (Date.now() < end) requestAnimationFrame(frame);
         }());
 
-        setTimeout(() => {
-            showFullRankingList(fullList);
-        }, 6000);
+        setTimeout(() => { showFullRankingList(fullList); }, 6000);
     }
 
     function renderPodium(list) {
@@ -714,7 +760,6 @@
             document.getElementById(`p${rankNum}-name`).innerText = pData.name;
             document.getElementById(`p${rankNum}-avatar`).innerText = pData.avatar;
             document.getElementById(`p${rankNum}-score`).innerText = pData.score;
-            
             el.style.visibility = 'visible';
             setTimeout(() => { el.classList.add('podium-enter'); }, delayIdx * 200);
         };
@@ -740,18 +785,10 @@
             else if(rank === 3) colorClass = "text-orange-400 font-bold";
 
             const tr = document.createElement('tr');
-            tr.className = "border-b border-slate-700/50 hover:bg-slate-800/50 transition-colors rank-item";
-            tr.style.animationDelay = (idx * 0.05) + "s";
-            
-            const isMe = (state.playerName === p.name);
+            tr.className = "border-b border-slate-700/50 hover:bg-slate-800/50 transition-colors";
             tr.innerHTML = `<td class="p-3 ${colorClass}">${rank}</td>
-                            <td class="p-3 flex items-center gap-3">
-                                <span class="text-2xl">${p.avatar}</span>
-                                <span class="font-bold text-white">${p.name} ${isMe ? '(YOU)' : ''}</span>
-                            </td>
+                            <td class="p-3 flex items-center gap-3"><span class="text-2xl">${p.avatar}</span><span class="font-bold text-white">${p.name} ${p.name===state.playerName?'(YOU)':''}</span></td>
                             <td class="p-3 text-right font-mono text-cyan-400 text-xl font-bold">${p.score}</td>`;
-            
-            if(isMe) tr.classList.add('bg-cyan-900/30', 'border-cyan-500', 'border');
             tbody.appendChild(tr);
         });
     }
