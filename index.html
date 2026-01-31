@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Arena V21.2: Stable S1 Edition</title>
+    <title>Math Arena V21.3: Bulletproof</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -18,25 +18,17 @@
         .font-display { font-family: 'Black Ops One', cursive; }
         .neon-text { text-shadow: 0 0 10px #22d3ee; }
         .btn-primary { @apply bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-lg shadow-[0_0_15px_rgba(8,145,178,0.5)] transform transition active:scale-95 w-full mb-3; }
-        
-        /* Topic Buttons */
         .btn-topic { @apply bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-400 font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 flex flex-col items-center justify-center gap-2; }
-        .btn-topic:active { @apply bg-cyan-900 border-cyan-400; }
-
-        /* Avatar Styling */
+        
         .avatar-btn { @apply text-4xl p-4 rounded-xl border-2 border-slate-700 transition-all cursor-pointer grayscale opacity-60 bg-slate-800 flex items-center justify-center; }
-        .avatar-btn.selected { 
-            @apply grayscale-0 opacity-100 scale-110 z-10 text-black;
-            background-color: #fbbf24; border-color: #f59e0b; box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);
-        }
+        .avatar-btn.selected { @apply grayscale-0 opacity-100 scale-110 z-10 text-black; background-color: #fbbf24; border-color: #f59e0b; box-shadow: 0 0 25px rgba(251, 191, 36, 0.8); }
 
-        /* Keypad & Lane */
         .key-btn { @apply active:scale-95 transition-transform shadow-lg; }
-        .lane-item { position: absolute; left: 0; right: 0; transition: top 0.5s ease-in-out; }
-        .progress-bar { transition: width 0.3s linear; }
-
+        
+        /* Host Lane - Changed to simpler Flex for stability */
+        .lane-item { @apply w-full bg-slate-800/80 rounded flex items-center px-4 py-2 border border-slate-700 shadow mb-2 transition-all; }
+        
         @keyframes podium-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .podium-enter { animation: podium-up 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
 <body class="h-screen flex flex-col items-center justify-center bg-[#050510]">
@@ -51,12 +43,12 @@
     <div id="view-topic-select" class="w-full h-full p-6 hidden flex-col max-w-4xl mx-auto z-50">
         <h2 class="text-3xl text-cyan-400 font-display mb-2 text-center">SELECT TOPIC</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto pb-20">
-            <button onclick="selectTopic('area')" class="btn-topic"><span class="text-3xl">📐</span><span>AREA &<br>SHAPES</span></button>
+            <button onclick="selectTopic('area')" class="btn-topic"><span class="text-3xl">📐</span><span>AREA & SHAPES</span></button>
             <button onclick="selectTopic('volume')" class="btn-topic"><span class="text-3xl">📦</span><span>VOLUME</span></button>
-            <button onclick="selectTopic('equation')" class="btn-topic"><span class="text-3xl">⚖️</span><span>LINEAR<br>EQUATION</span></button>
+            <button onclick="selectTopic('equation')" class="btn-topic"><span class="text-3xl">⚖️</span><span>LINEAR EQ</span></button>
             <button onclick="selectTopic('percent')" class="btn-topic"><span class="text-3xl">💯</span><span>PERCENTAGE</span></button>
-            <button onclick="selectTopic('directed')" class="btn-topic"><span class="text-3xl">➕➖</span><span>DIRECTED<br>NUMBERS</span></button>
-            <button onclick="selectTopic('angles')" class="btn-topic"><span class="text-3xl">📏</span><span>LINES &<br>ANGLES</span></button>
+            <button onclick="selectTopic('directed')" class="btn-topic"><span class="text-3xl">➕➖</span><span>DIRECTED NOS</span></button>
+            <button onclick="selectTopic('angles')" class="btn-topic"><span class="text-3xl">📏</span><span>ANGLES</span></button>
             <button onclick="selectTopic('coord')" class="btn-topic"><span class="text-3xl">🌐</span><span>COORDINATES</span></button>
         </div>
     </div>
@@ -76,29 +68,29 @@
                 <div class="mb-6">
                     <label class="block text-slate-400 text-sm mb-2 font-bold">MODE</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="btn-mode-score" class="border border-slate-600 text-slate-400 py-2 rounded" onclick="setMode('score')">🏁 Score</button>
-                        <button id="btn-mode-time" class="border border-cyan-500 text-cyan-400 bg-cyan-900/50 py-2 rounded" onclick="setMode('time')">⏱️ Timer</button>
+                        <button class="border border-slate-600 text-slate-400 py-2 rounded" onclick="setMode('score')">🏁 Score</button>
+                        <button class="border border-cyan-500 text-cyan-400 bg-cyan-900/50 py-2 rounded" onclick="setMode('time')">⏱️ Timer</button>
                     </div>
                 </div>
                 <div class="mb-6">
                     <label class="block text-slate-400 text-sm mb-2 font-bold" id="setting-label">TIME LIMIT</label>
-                    <input type="range" id="setting-slider" class="w-full h-2 bg-slate-700 rounded-lg cursor-pointer accent-cyan-500">
+                    <input type="range" id="setting-slider" class="w-full h-2 bg-slate-700 rounded-lg cursor-pointer accent-cyan-500" oninput="updateSetting(this.value)">
                     <div class="text-right text-cyan-400 text-2xl font-bold mt-2" id="setting-value">60 SEC</div>
                 </div>
-                <button id="btn-host-start" onclick="hostStartGame()" class="btn-primary mt-auto bg-slate-700 text-slate-500 cursor-not-allowed opacity-50" disabled>⏳ WAIT FOR PLAYERS (0/2)</button>
+                <button id="btn-host-start" onclick="hostStartGame()" class="btn-primary mt-auto bg-slate-700 text-slate-500 cursor-not-allowed opacity-50" disabled>⏳ WAIT FOR PLAYERS</button>
             </div>
         </div>
     </div>
 
     <div id="view-host-game" class="w-full h-full p-4 hidden flex-col bg-slate-950 relative">
-        <div class="flex justify-between items-center mb-4 px-4 py-2 bg-slate-900/80 rounded-lg border border-slate-700">
+        <div class="flex justify-between items-center mb-4 px-4 py-3 bg-slate-900/80 rounded-lg border border-slate-700 shrink-0">
             <div class="font-display text-2xl italic text-slate-300">LIVE</div>
-            <div class="text-4xl font-mono font-bold text-cyan-400 neon-text" id="host-timer-display">00:00</div>
-            <div class="text-sm text-slate-500 font-bold" id="host-target-display">--</div>
+            <div class="text-5xl font-mono font-bold text-cyan-400 neon-text" id="host-timer-display">00:00</div>
         </div>
-        <div class="flex-1 relative mx-4 rounded-xl bg-slate-900/30 border border-slate-800 overflow-y-auto" id="lanes-container"></div>
-        <div id="host-status-msg" class="absolute bottom-10 left-0 w-full text-center pointer-events-none opacity-0 transition-opacity duration-500">
-            <span class="bg-black/80 text-yellow-400 px-6 py-2 rounded-full text-xl font-bold border border-yellow-500">🛑 TIME UP</span>
+        <div class="flex-1 overflow-y-auto px-2 pb-20" id="lanes-container"></div>
+        
+        <div id="host-status-msg" class="absolute bottom-10 left-0 w-full text-center pointer-events-none opacity-0 transition-opacity duration-500 z-50">
+            <span class="bg-black/90 text-yellow-400 px-8 py-4 rounded-full text-2xl font-bold border-2 border-yellow-500 shadow-xl">🛑 TIME UP</span>
         </div>
     </div>
 
@@ -129,18 +121,18 @@
             <div class="text-6xl mb-4">🛑</div>
             <h2 class="text-4xl font-display text-red-500 mb-2 neon-text">FINISHED</h2>
         </div>
-        <div class="h-12 bg-slate-950 border-b border-slate-800 flex justify-between items-center px-4">
-            <div class="text-cyan-400 font-bold" id="client-score">0 PTS</div>
-            <div class="text-slate-400 font-mono" id="client-timer-display">--:--</div>
+        <div class="h-14 bg-slate-950 border-b border-slate-800 flex justify-between items-center px-4 shrink-0">
+            <div class="text-cyan-400 font-bold text-xl" id="client-score">0 PTS</div>
+            <div class="text-slate-400 font-mono text-xl" id="client-timer-display">--:--</div>
         </div>
-        <div class="flex-1 relative flex justify-center items-center overflow-hidden" id="canvas-container">
+        <div class="flex-1 relative w-full h-full flex justify-center items-center overflow-hidden" id="canvas-container">
             <canvas id="gameCanvas"></canvas>
-            <div id="feedback-msg" class="absolute top-1/3 left-1/2 -translate-x-1/2 text-4xl font-black opacity-0 pointer-events-none z-30"></div>
+            <div id="feedback-msg" class="absolute top-1/3 left-1/2 -translate-x-1/2 text-5xl font-black opacity-0 pointer-events-none z-30 drop-shadow-lg"></div>
         </div>
         <div class="bg-slate-900 border-t border-slate-800 p-2 h-[45vh] grid grid-rows-[auto_1fr] gap-2 z-10 shrink-0">
             <div class="bg-slate-800/50 rounded p-2 flex flex-col justify-center items-center relative border border-slate-700">
-                <div id="input-display" class="text-3xl font-mono font-bold tracking-[0.2em] text-white">_</div>
-                <div id="hint-display" class="text-xs text-yellow-500/80 font-mono mt-1"></div>
+                <div id="input-display" class="text-4xl font-mono font-bold tracking-[0.2em] text-white">_</div>
+                <div id="hint-display" class="text-sm text-yellow-500/80 font-mono mt-1"></div>
             </div>
             <div class="grid grid-cols-3 gap-1 h-full pb-safe" id="keypad-grid"></div>
         </div>
@@ -149,32 +141,12 @@
     <div id="view-podium" class="text-center w-full hidden z-[100] bg-slate-950 absolute inset-0 flex flex-col items-center justify-center">
         <h1 class="text-5xl font-display text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 mb-12 neon-gold z-10">CHAMPIONS</h1>
         <div class="flex items-end justify-center w-full max-w-4xl px-2 z-10" id="podium-container">
-            <div id="podium-2" class="flex flex-col items-center mx-2 opacity-0 transform translate-y-full transition-all duration-700">
-                <div class="text-4xl mb-2" id="p2-avatar"></div>
-                <div class="text-white text-sm" id="p2-name"></div>
-                <div class="w-24 h-32 bg-slate-700 rounded-t-lg border-t-4 border-slate-400 flex items-end justify-center pb-2 shadow-[0_0_20px_rgba(148,163,184,0.3)]">
-                    <span class="text-3xl font-black text-slate-500">2</span>
-                </div>
-                <div class="text-cyan-400 font-bold" id="p2-score"></div>
-            </div>
-            <div id="podium-1" class="flex flex-col items-center mx-2 opacity-0 transform translate-y-full transition-all duration-700 z-20">
-                <div class="text-7xl mb-2 animate-bounce" id="p1-avatar"></div>
-                <div class="text-yellow-400 font-bold text-xl neon-gold" id="p1-name"></div>
-                <div class="w-32 h-48 bg-gradient-to-b from-yellow-600 to-yellow-800 rounded-t-lg border-t-4 border-yellow-400 flex items-end justify-center pb-4 shadow-[0_0_40px_rgba(234,179,8,0.5)]">
-                    <span class="text-5xl font-black text-yellow-900/50">1</span>
-                </div>
-                <div class="text-yellow-400 text-2xl font-black" id="p1-score"></div>
-            </div>
-            <div id="podium-3" class="flex flex-col items-center mx-2 opacity-0 transform translate-y-full transition-all duration-700">
-                <div class="text-4xl mb-2" id="p3-avatar"></div>
-                <div class="text-white text-sm" id="p3-name"></div>
-                <div class="w-24 h-24 bg-orange-900 rounded-t-lg border-t-4 border-orange-700 flex items-end justify-center pb-2 shadow-[0_0_20px_rgba(124,45,18,0.3)]">
-                    <span class="text-3xl font-black text-orange-900/50">3</span>
-                </div>
-                <div class="text-cyan-400 font-bold" id="p3-score"></div>
-            </div>
+            <div id="podium-2" class="flex flex-col items-center mx-2 opacity-0 transform translate-y-full transition-all duration-700"><div class="text-4xl mb-2" id="p2-avatar"></div><div class="text-white text-sm" id="p2-name"></div><div class="w-24 h-32 bg-slate-700 rounded-t-lg border-t-4 border-slate-400 flex items-end justify-center pb-2"><span class="text-3xl font-black text-slate-500">2</span></div><div class="text-cyan-400 font-bold" id="p2-score"></div></div>
+            <div id="podium-1" class="flex flex-col items-center mx-2 opacity-0 transform translate-y-full transition-all duration-700 z-20"><div class="text-7xl mb-2 animate-bounce" id="p1-avatar"></div><div class="text-yellow-400 font-bold text-xl neon-gold" id="p1-name"></div><div class="w-32 h-48 bg-gradient-to-b from-yellow-600 to-yellow-800 rounded-t-lg border-t-4 border-yellow-400 flex items-end justify-center pb-4"><span class="text-5xl font-black text-yellow-900/50">1</span></div><div class="text-yellow-400 text-2xl font-black" id="p1-score"></div></div>
+            <div id="podium-3" class="flex flex-col items-center mx-2 opacity-0 transform translate-y-full transition-all duration-700"><div class="text-4xl mb-2" id="p3-avatar"></div><div class="text-white text-sm" id="p3-name"></div><div class="w-24 h-24 bg-orange-900 rounded-t-lg border-t-4 border-orange-700 flex items-end justify-center pb-2"><span class="text-3xl font-black text-orange-900/50">3</span></div><div class="text-cyan-400 font-bold" id="p3-score"></div></div>
         </div>
     </div>
+    
     <div id="view-rankings" class="w-full h-full hidden z-[101] bg-slate-950 absolute inset-0 flex flex-col p-6">
         <h2 class="text-3xl font-display text-cyan-400 text-center mb-6">FINAL STANDINGS</h2>
         <div class="flex-1 overflow-y-auto bg-slate-900/50 rounded-xl border border-slate-800 p-4 max-w-2xl mx-auto w-full">
@@ -184,14 +156,14 @@
     </div>
 
 <script>
-    // --- FIREBASE SETUP ---
+    // --- 1. FIREBASE CONFIG ---
     const firebaseConfig = { apiKey: "AIzaSyAYnQB2o5cPn42RiNAik7537ihduICJwdQ", authDomain: "fwftmath.firebaseapp.com", projectId: "fwftmath", storageBucket: "fwftmath.firebasestorage.app", messagingSenderId: "70090299689", appId: "1:70090299689:web:ae300db1f79a3eda62bf38" };
     let app, db;
     try { app = firebase.initializeApp(firebaseConfig); db = firebase.database(); 
         db.ref(".info/connected").on("value", s => document.getElementById('db-status').innerText = s.val()?"🟢 ONLINE":"🟠 CONNECTING...");
-    } catch(e){console.error(e);}
+    } catch(e){console.error("FB Err",e);}
 
-    // --- GAME CONSTANTS & AUDIO ---
+    // --- 2. AUDIO & STATE ---
     const AVATARS = ['🐯','🐰','🦁','🦄','🦖','👽','🤖','🐼','🦊','🐨','🐮','🐷'];
     const AUDIO = new (window.AudioContext||window.webkitAudioContext)();
     
@@ -203,9 +175,8 @@
         o.start(); g.gain.exponentialRampToValueAtTime(0.001,AUDIO.currentTime+d);
         o.stop(AUDIO.currentTime+d);
     }
-    
     function playFanfare() {
-        // Simple C major triad arpeggio
+        if(AUDIO.state==='suspended')AUDIO.resume();
         setTimeout(()=>playTone(523.25, 'triangle', 0.2), 0);
         setTimeout(()=>playTone(659.25, 'triangle', 0.2), 150);
         setTimeout(()=>playTone(783.99, 'triangle', 0.4), 300);
@@ -213,97 +184,94 @@
     }
 
     let state = {
-        role: 'none', gid: new URLSearchParams(location.search).get('gid'), pid: 'p_'+Math.random().toString(36).substr(2,6),
+        gid: new URLSearchParams(location.search).get('gid'), 
+        pid: 'p_'+Math.random().toString(36).substr(2,8),
         name: 'Guest', av: '', score: 0, active: false,
         settings: { mode: 'time', target: 60, topic: 'area' },
         q: null, input: '', lastBeep: -1
     };
 
+    // --- 3. VIEW CONTROLLER ---
     const views = ['view-menu','view-topic-select','view-host-lobby','view-host-game','view-join','view-avatar-select','view-student-wait','view-game','view-podium','view-rankings'];
-    function show(id) { views.forEach(v=>document.getElementById(v).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); if(id.includes('host')||id.includes('flex'))document.getElementById(id).classList.add('flex'); if(id==='view-game')resize(); }
+    function show(id) { 
+        views.forEach(v=>document.getElementById(v).classList.add('hidden')); 
+        const el = document.getElementById(id);
+        el.classList.remove('hidden'); 
+        if(id.includes('host')||id.includes('flex')) el.classList.add('flex');
+        
+        // CRITICAL FIX: Delay canvas resize to ensure container has dimensions
+        if(id==='view-game') setTimeout(resize, 100); 
+    }
     window.onload=()=>state.gid?show('view-join'):show('view-menu');
 
-    // --- HOST ---
-    function setupHost() { if(!db)return; state.role='host'; AUDIO.resume(); show('view-topic-select'); }
-    function selectTopic(topic) {
-        state.settings.topic = topic;
-        const ref = db.ref('games').push();
-        state.gid = ref.key;
+    // --- 4. HOST LOGIC ---
+    function setupHost() { if(!db)return; AUDIO.resume(); show('view-topic-select'); }
+    function selectTopic(t) {
+        state.settings.topic = t;
+        const ref = db.ref('games').push(); state.gid = ref.key;
         ref.set({ status: 'lobby', settings: state.settings });
         show('view-host-lobby');
-        document.getElementById('lobby-topic-display').innerText = "TOPIC: " + topic.toUpperCase().replace('_',' ');
+        document.getElementById('lobby-topic-display').innerText = "TOPIC: " + t.toUpperCase();
         new QRCode(document.getElementById("qrcode"), { text: `${location.origin}${location.pathname}?gid=${state.gid}`, width:128, height:128 });
         
         db.ref(`games/${state.gid}/players`).on('value', snap => {
             const grid=document.getElementById('player-grid'); grid.innerHTML=''; 
-            let count=0;
-            snap.forEach(c => {
-                count++;
-                grid.innerHTML += `<div class="bg-slate-800 px-3 py-2 rounded border border-slate-600 flex gap-2 items-center animate-[pop_0.3s]"><span class="text-2xl">${c.val().avatar}</span><span class="font-bold">${c.val().name}</span></div>`;
-            });
-            document.getElementById('join-count-display').innerText = `${count} PLAYERS`;
+            let c=0; snap.forEach(x => { c++; grid.innerHTML += `<div class="bg-slate-800 px-3 py-2 rounded border border-slate-600 flex gap-2 items-center"><span class="text-2xl">${x.val().avatar}</span><span class="font-bold">${x.val().name}</span></div>`; });
+            document.getElementById('join-count-display').innerText = `${c} PLAYERS`;
             const btn = document.getElementById('btn-host-start');
-            if(count>=2) { btn.disabled=false; btn.className="btn-primary mt-auto bg-gradient-to-r from-green-500 to-emerald-600 text-2xl py-4"; btn.innerText="🚀 START GAME"; }
-            else { btn.disabled=true; btn.className="btn-primary mt-auto bg-slate-700 text-slate-500 opacity-50 cursor-not-allowed"; btn.innerText=`⏳ WAIT (${count}/2)`; }
+            btn.disabled = c < 2;
+            btn.className = c<2 ? "btn-primary mt-auto bg-slate-700 opacity-50" : "btn-primary mt-auto bg-green-600 hover:bg-green-500 text-2xl py-4";
+            btn.innerText = c<2 ? `⏳ WAIT (${c}/2)` : "🚀 START GAME";
         });
         setMode('time');
     }
-
-    function setMode(m) { state.settings.mode = m; document.getElementById('setting-slider').oninput(); }
-    document.getElementById('setting-slider').oninput = function() {
-        const v = parseInt(this.value); state.settings.target = v;
+    function setMode(m) { state.settings.mode=m; updateSetting(document.getElementById('setting-slider').value); }
+    function updateSetting(v) {
+        state.settings.target=parseInt(v);
         document.getElementById('setting-value').innerText = state.settings.mode==='score' ? v+" PTS" : v+" SEC";
         if(state.gid) db.ref(`games/${state.gid}/settings`).update(state.settings);
-    };
+    }
 
     function hostStartGame() {
-        if(document.getElementById('join-count-display').innerText.charAt(0) < '2') return;
+        if(document.getElementById('join-count-display').innerText[0] < '2') return;
         const end = state.settings.mode==='time' ? Date.now()+(state.settings.target*1000) : 0;
         db.ref(`games/${state.gid}`).update({ status: 'playing', startTime: Date.now(), endTime: end });
         show('view-host-game');
         
-        let loop = setInterval(() => {
-            const now = Date.now();
+        const timerLoop = setInterval(() => {
             if(state.settings.mode==='time') {
-                const left = Math.ceil((end - now)/1000);
-                // AUDIO: Start beeping at 5 seconds
+                const left = Math.ceil((end - Date.now())/1000);
+                document.getElementById('host-timer-display').innerText = left<=0 ? "00:00" : `${Math.floor(left/60)}:${(left%60).toString().padStart(2,'0')}`;
+                
                 if(left <= 5 && left > 0 && left !== state.lastBeep) {
-                    state.lastBeep = left;
-                    playTone(600 + (5-left)*200, 'sawtooth', 0.1); 
+                    state.lastBeep = left; playTone(600 + (5-left)*200, 'sawtooth', 0.1);
                 }
-                if(now >= end) { clearInterval(loop); finishGame(); }
-            }
+                if(left <= 0) { clearInterval(timerLoop); finishGame(); }
+            } else { document.getElementById('host-timer-display').innerText = "RACE"; }
         }, 500);
 
-        let uiLoop = setInterval(() => {
-            const el = document.getElementById('host-timer-display');
-            if(state.settings.mode==='time') {
-                let left = Math.ceil((end - Date.now())/1000);
-                if(left<=0) { el.innerText="00:00"; clearInterval(uiLoop); }
-                else el.innerText = `${Math.floor(left/60)}:${(left%60).toString().padStart(2,'0')}`;
-            } else { el.innerText = "RACE"; }
-        }, 200);
-
-        // FIX: Use Player ID (key) as unique identifier
+        // STABILITY FIX: Re-render list completely on every update to prevent ghosts/hidden items
         db.ref(`games/${state.gid}/players`).on('value', snap => {
-            const players=[]; 
-            snap.forEach(c => players.push({ ...c.val(), pid: c.key })); // Store PID!
-            players.sort((a,b)=>(b.score||0)-(a.score||0));
+            const arr = []; snap.forEach(c => arr.push(c.val()));
+            arr.sort((a,b) => (b.score||0)-(a.score||0));
             
+            const max = state.settings.mode==='score' ? state.settings.target : Math.max(state.settings.target*10, (arr[0]?.score||0)*1.2);
+            if(state.settings.mode==='score' && arr[0]?.score >= state.settings.target) { clearInterval(timerLoop); finishGame(); }
+
             const con = document.getElementById('lanes-container');
-            const max = state.settings.mode==='score' ? state.settings.target : Math.max(state.settings.target*10, (players[0]?.score||0)*1.2);
+            con.innerHTML = ''; // Clear container for bulletproof rendering
             
-            players.forEach((p,i) => {
-                let lane = document.getElementById('lane-'+p.pid); // Use PID for ID
-                if(!lane) {
-                    lane = document.createElement('div'); lane.id='lane-'+p.pid;
-                    lane.className = 'lane-item h-12 bg-slate-800/80 rounded flex items-center px-2 border border-slate-700 shadow mx-2 mb-2';
-                    lane.innerHTML = `<div class="w-8 text-2xl">${p.avatar}</div><div class="w-20 truncate font-bold text-sm">${p.name}</div><div class="flex-1 h-3 bg-slate-900 rounded-full mx-2"><div class="progress-bar h-full bg-cyan-500" style="width:0%"></div></div><div class="w-12 text-right font-mono font-bold text-cyan-400 p-score">0</div>`;
-                    con.appendChild(lane);
-                }
-                lane.style.top = (i*60)+'px';
-                lane.querySelector('.progress-bar').style.width = Math.min(100, (p.score/max)*100)+'%';
-                lane.querySelector('.p-score').innerText = p.score;
+            arr.forEach((p, i) => {
+                const width = Math.min(100, (p.score/max)*100);
+                con.innerHTML += `
+                    <div class="lane-item">
+                        <div class="w-8 text-3xl mr-2">${p.avatar}</div>
+                        <div class="w-24 truncate font-bold text-sm text-slate-300">${p.name}</div>
+                        <div class="flex-1 h-4 bg-slate-900 rounded-full mx-2 border border-slate-700 overflow-hidden relative">
+                            <div class="h-full bg-cyan-500 shadow-[0_0_10px_#06b6d4]" style="width:${width}%"></div>
+                        </div>
+                        <div class="w-16 text-right font-mono font-bold text-cyan-400 text-xl">${p.score}</div>
+                    </div>`;
             });
         });
     }
@@ -316,13 +284,12 @@
             db.ref(`games/${state.gid}/players`).once('value', s => {
                 const arr=[]; s.forEach(c=>arr.push(c.val()));
                 arr.sort((a,b)=>b.score-a.score);
-                // Important: Pass plain array for ranking
                 db.ref(`games/${state.gid}`).update({ status: 'results', finalStandings: arr });
             });
         }, 2000);
     }
 
-    // --- CLIENT ---
+    // --- 5. CLIENT LOGIC ---
     function goToAvatarSelect() {
         if(!document.getElementById('player-name').value) return;
         state.name = document.getElementById('player-name').value;
@@ -341,7 +308,6 @@
     }
 
     function confirmJoin() {
-        // Use state.pid (random ID) to ensure uniqueness
         db.ref(`games/${state.gid}/players/${state.pid}`).set({ name: state.name, avatar: state.av, score: 0 });
         show('view-student-wait');
         document.getElementById('my-final-avatar').innerText = state.av;
@@ -352,10 +318,12 @@
             state.settings = g.settings;
             document.getElementById('client-topic-wait').innerText = "Topic: " + g.settings.topic.toUpperCase();
 
-            if(g.status === 'playing') {
-                if(!state.active) {
-                    state.active = true; show('view-game'); setupKeypad(state.settings.topic); generateQuestion(); startClientTimer(g.endTime);
-                }
+            if(g.status === 'playing' && !state.active) {
+                state.active = true;
+                show('view-game'); // This calls resize via setTimeout
+                setupKeypad(state.settings.topic);
+                generateQuestion();
+                startClientTimer(g.endTime);
             } else if(g.status === 'finished') {
                 state.active = false; document.getElementById('game-freeze-overlay').classList.remove('hidden');
             } else if(g.status === 'results') {
@@ -369,25 +337,26 @@
         let tLoop = setInterval(() => {
             if(!end) { el.innerText="RACE"; return; }
             let left = Math.ceil((end-Date.now())/1000);
-            if(left <= 5 && left > 0 && left !== state.lastBeep) {
-                state.lastBeep = left;
-                playTone(600 + (5-left)*200, 'sawtooth', 0.1); // Sync audio on client too
-            }
+            if(left<=5 && left>0 && left!==state.lastBeep) { state.lastBeep=left; playTone(600+(5-left)*200, 'sawtooth', 0.1); }
             if(left<=0) { el.innerText="00:00"; clearInterval(tLoop); }
             else el.innerText = `${Math.floor(left/60)}:${(left%60).toString().padStart(2,'0')}`;
-        }, 200);
+        }, 500);
     }
 
-    // --- MATH ---
+    // --- 6. MATH ENGINE ---
     const cvs = document.getElementById('gameCanvas'), ctx = cvs.getContext('2d');
-    window.onresize=()=> { const p=document.getElementById('canvas-container'); cvs.width=p.clientWidth; cvs.height=p.clientHeight; if(state.q) draw(); };
+    function resize() { 
+        const p=document.getElementById('canvas-container'); 
+        if(p.clientWidth === 0) return; // Wait for container
+        cvs.width=p.clientWidth; cvs.height=p.clientHeight; 
+        if(state.q) draw(); 
+    }
+    window.onresize=resize;
 
     function setupKeypad(topic) {
-        const grid = document.getElementById('keypad-grid');
-        const needsMinus = ['equation', 'directed', 'coord'].includes(topic);
-        grid.innerHTML = '';
+        const grid = document.getElementById('keypad-grid'); grid.innerHTML = '';
         [7,8,9,4,5,6,1,2,3].forEach(n => grid.innerHTML += `<button class="key-btn bg-slate-800 text-cyan-100 rounded text-2xl font-bold active:bg-cyan-700 shadow" onclick="input('${n}')">${n}</button>`);
-        if(needsMinus) {
+        if(['equation','directed','coord'].includes(topic)) {
             grid.innerHTML += `<button class="key-btn bg-slate-700 text-yellow-400 rounded text-2xl font-bold shadow" onclick="input('-')">-</button>`;
             grid.innerHTML += `<button class="key-btn bg-slate-800 text-cyan-100 rounded text-2xl font-bold shadow" onclick="input('0')">0</button>`;
             grid.innerHTML += `<button class="key-btn bg-rose-900/40 text-rose-500 rounded font-bold shadow" onclick="input('DEL')">DEL</button>`;
@@ -435,7 +404,7 @@
             q.x=r(-5,5); q.y=r(-5,5); if(q.x===0)q.x++; if(q.y===0)q.y--; q.ask=Math.random()>0.5?'x':'y'; q.ans=q.ask==='x'?q.x:q.y; hint=`Find ${q.ask.toUpperCase()}-coordinate`;
         }
         state.q = q; state.input = ''; document.getElementById('input-display').innerText='_'; document.getElementById('hint-display').innerText=hint;
-        const p=document.getElementById('canvas-container'); cvs.width=p.clientWidth; cvs.height=p.clientHeight; draw();
+        draw();
     }
 
     function draw() {
@@ -478,39 +447,31 @@
     }
 
     function showResults(list) {
-        if(!list) return; // Safety check
+        if(!list) return;
         show('view-podium');
         
-        const setPod = (id, p, delay) => {
+        const setPod = (id, p, d) => {
             if(!p) return;
             setTimeout(() => {
-                document.getElementById(id).style.opacity = '1';
-                document.getElementById(id).style.transform = 'translateY(0)';
+                const el = document.getElementById(id);
+                el.style.opacity = '1'; el.style.transform = 'translateY(0)';
                 document.getElementById(id.replace('podium','p')+'-name').innerText = p.name;
                 document.getElementById(id.replace('podium','p')+'-avatar').innerText = p.avatar;
                 document.getElementById(id.replace('podium','p')+'-score').innerText = p.score;
-                
-                // AUDIO: Play sound based on rank
-                if(id === 'podium-1') playFanfare();
-                else playTone(200, 'square', 0.2); 
-
-            }, delay);
+                if(id==='podium-1') playFanfare(); else playTone(200, 'square', 0.2); 
+            }, d);
         };
-
-        // Sequence: 3rd -> 2nd -> 1st -> Rankings
         setPod('podium-3', list[2], 500);
         setPod('podium-2', list[1], 1500);
         setPod('podium-1', list[0], 2500);
-        
         setTimeout(() => confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } }), 2600);
-
         setTimeout(() => {
             show('view-rankings');
             const b = document.getElementById('ranking-list-body'); b.innerHTML='';
             list.forEach((p,i) => {
                 b.innerHTML += `<tr class="border-b border-slate-700 text-slate-300 animate-[pop_0.5s]"><td class="p-3">${i+1}</td><td class="p-3 flex gap-2"><span class="text-xl">${p.avatar}</span><b>${p.name}</b></td><td class="p-3 text-right font-mono">${p.score}</td></tr>`;
             });
-        }, 6000); // 6 Seconds after podium start
+        }, 6500);
     }
 </script>
 </body>
