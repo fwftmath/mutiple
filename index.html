@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Arena V30: S1 Ultimate</title>
+    <title>Math Arena V31: S1 Final</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -17,24 +17,48 @@
         body { background-color: #050510; color: white; touch-action: none; user-select: none; font-family: 'Roboto Mono', monospace; overflow: hidden; overscroll-behavior-y: contain; }
         .font-display { font-family: 'Black Ops One', cursive; }
         .neon-text { text-shadow: 0 0 10px #22d3ee; }
+        .neon-gold { text-shadow: 0 0 20px #fbbf24; }
         
+        /* Lane & Progress */
         .lane-item { position: absolute; left: 0; right: 0; transition: top 0.5s ease-in-out; }
         .progress-bar { transition: width 0.3s linear; }
         
+        /* Buttons */
         .btn-primary { @apply bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-lg shadow-[0_0_15px_rgba(8,145,178,0.5)] transform transition active:scale-95 w-full mb-3; }
         
-        .avatar-btn { @apply text-4xl p-2 rounded-xl border-2 border-slate-700 transition-all cursor-pointer grayscale opacity-70 bg-slate-800; }
-        .avatar-btn.selected { @apply bg-slate-800 grayscale-0 opacity-100 scale-110 z-10; border-color: #fbbf24; box-shadow: 0 0 20px 5px rgba(251, 191, 36, 0.6); }
-        .avatar-btn.taken { @apply opacity-20 cursor-not-allowed border-red-900 bg-slate-900 scale-90 grayscale; }
-        
-        /* Topic Selection Buttons */
-        .topic-btn { @apply border border-slate-600 text-slate-300 py-3 rounded text-sm font-bold transition-all bg-slate-800 hover:bg-slate-700; }
+        /* Topic Buttons */
+        .topic-btn { @apply border border-slate-600 text-slate-300 py-2 rounded text-xs font-bold transition-all bg-slate-800 hover:bg-slate-700; }
         .topic-btn.active { @apply border-cyan-400 text-white bg-cyan-900 shadow-[0_0_10px_rgba(34,211,238,0.3)] ring-1 ring-cyan-400; }
 
+        /* Mode Buttons */
+        .mode-btn { @apply border border-slate-600 text-slate-400 py-2 rounded text-sm font-bold; }
+        .mode-btn.active { @apply border-green-500 text-green-400 bg-green-900/30 shadow-[0_0_10px_rgba(74,222,128,0.3)]; }
+
+        /* Avatar Selection - Enhanced with Backlight */
+        .avatar-btn { 
+            @apply text-6xl p-4 rounded-2xl border-2 border-slate-700 transition-all cursor-pointer grayscale opacity-60 bg-slate-800 flex justify-center items-center h-24 w-24 mx-auto; 
+        }
+        .avatar-btn.selected { 
+            @apply bg-yellow-900/40 grayscale-0 opacity-100 scale-110 z-10; 
+            border-color: #fbbf24; 
+            box-shadow: 0 0 25px 5px rgba(251, 191, 36, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.2); 
+            animation: pulse-gold 2s infinite;
+        }
+        .avatar-btn.taken { @apply opacity-20 cursor-not-allowed border-red-900 bg-slate-900 scale-90 grayscale; }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 25px 5px rgba(251, 191, 36, 0.5); }
+            50% { box-shadow: 0 0 35px 10px rgba(251, 191, 36, 0.7); }
+            100% { box-shadow: 0 0 25px 5px rgba(251, 191, 36, 0.5); }
+        }
+
+        /* Z-Index Layers */
         #view-game { z-index: 10; }
-        #game-freeze-overlay { z-index: 50; }
-        #view-podium { z-index: 100 !important; background-color: #050510; }
-        #view-rankings { z-index: 101 !important; background-color: #050510; }
+        #view-podium { z-index: 200 !important; background-color: #050510; } /* Raised Z-Index */
+        #view-rankings { z-index: 201 !important; background-color: #050510; }
+        
+        .podium-enter { opacity: 1 !important; transform: translateY(0) !important; visibility: visible !important; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .podium-hidden { opacity: 0; transform: translateY(50px); visibility: hidden; }
     </style>
 </head>
 <body class="h-screen flex flex-col items-center justify-center bg-[#050510]">
@@ -56,7 +80,7 @@
             
             <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col overflow-y-auto">
                 
-                <div class="mb-5">
+                <div class="mb-4">
                     <label class="block text-slate-400 text-xs mb-2 font-bold uppercase tracking-widest">Select S1 Topic</label>
                     <div class="grid grid-cols-2 gap-2">
                         <button class="topic-btn active" onclick="setTopic('integers')" id="btn-topic-integers">🔢 Integers (+/-)</button>
@@ -69,7 +93,15 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase">Time Limit</label>
+                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase">Game Mode</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="mode-btn active" onclick="setMode('time')" id="btn-mode-time">⏱️ Time Limit</button>
+                        <button class="mode-btn" onclick="setMode('score')" id="btn-mode-score">🏁 Score Race</button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-slate-400 text-xs mb-2 font-bold uppercase" id="setting-label">TIME LIMIT</label>
                     <input type="range" id="setting-slider" class="w-full h-2 bg-slate-700 rounded-lg cursor-pointer accent-cyan-500">
                     <div class="text-right text-cyan-400 text-xl font-bold mt-1" id="setting-value">60 SEC</div>
                 </div>
@@ -87,7 +119,7 @@
         </div>
         <div class="flex-1 relative mx-4 rounded-xl bg-slate-900/30 border border-slate-800 overflow-y-auto" id="lanes-container"></div>
         <div id="host-status-msg" class="absolute bottom-10 left-0 w-full text-center pointer-events-none opacity-0 transition-opacity duration-500">
-            <span class="bg-black/80 text-yellow-400 px-6 py-2 rounded-full text-xl font-bold border border-yellow-500 shadow-lg">🛑 TIME UP - CALCULATING...</span>
+            <span class="bg-black/80 text-yellow-400 px-6 py-2 rounded-full text-xl font-bold border border-yellow-500 shadow-lg">🛑 CALCULATING RESULTS...</span>
         </div>
     </div>
 
@@ -97,18 +129,20 @@
         <button onclick="goToAvatarSelect()" class="btn-primary">NEXT</button>
     </div>
 
-    <div id="view-avatar-select" class="text-center p-6 max-w-md w-full hidden z-50 flex-col">
-        <h2 class="text-xl font-bold mb-4 text-cyan-400">SELECT AVATAR</h2>
-        <div class="grid grid-cols-4 gap-4 mb-8" id="avatar-grid"></div>
+    <div id="view-avatar-select" class="text-center p-6 max-w-lg w-full hidden z-50 flex-col">
+        <h2 class="text-xl font-bold mb-2 text-cyan-400">CHOOSE AVATAR</h2>
+        <div class="grid grid-cols-3 gap-4 mb-8" id="avatar-grid"></div>
         <button onclick="confirmJoin()" class="btn-primary" id="btn-join-confirm" disabled>READY</button>
+        <button onclick="showView('view-join')" class="text-slate-500 underline mt-2">BACK</button>
     </div>
 
     <div id="view-student-wait" class="text-center p-6 w-full hidden z-50">
         <div class="text-6xl mb-4 animate-bounce">⏳</div>
         <h2 class="text-2xl font-bold text-white mb-2">WAITING...</h2>
-        <div class="mt-8 p-4 bg-slate-900 rounded border border-slate-700 flex flex-col items-center">
-            <div id="my-final-avatar" class="text-5xl mb-2"></div>
-            <span id="my-final-name" class="font-bold text-cyan-400"></span>
+        <div class="mt-8 p-6 bg-slate-900 rounded-xl border border-slate-700 flex flex-col items-center shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <div id="my-final-avatar" class="text-7xl mb-4 p-4 rounded-full bg-slate-800 border-2 border-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.4)]"></div>
+            <span id="my-final-name" class="font-bold text-2xl text-cyan-400 font-display"></span>
+            <div class="mt-4 text-slate-500 text-sm">Look at the big screen</div>
         </div>
     </div>
 
@@ -151,23 +185,23 @@
         </div>
     </div>
 
-    <div id="view-podium" class="text-center w-full hidden z-[100] bg-slate-950 absolute inset-0 flex flex-col items-center justify-center">
+    <div id="view-podium" class="text-center w-full hidden absolute inset-0 flex flex-col items-center justify-center">
         <h1 class="text-5xl font-display text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 mb-12 neon-gold z-10">CHAMPIONS</h1>
         <div class="flex items-end justify-center w-full max-w-4xl px-2 z-10" id="podium-container">
-            <div id="podium-2" class="flex flex-col items-center mx-1 md:mx-4 opacity-0" style="visibility: hidden;">
-                <div class="text-4xl mb-2" id="p2-avatar"></div>
+            <div id="podium-2" class="podium-hidden flex flex-col items-center mx-1 md:mx-4">
+                <div class="text-5xl mb-2" id="p2-avatar"></div>
                 <div class="text-white font-bold text-sm truncate w-20 md:w-32" id="p2-name"></div>
                 <div class="w-20 md:w-32 h-32 bg-slate-700 rounded-t-lg border-t-4 border-slate-400 flex items-end justify-center pb-2 shadow-lg"><span class="text-3xl font-black text-slate-500">2</span></div>
                 <div class="mt-2 text-cyan-400 font-bold" id="p2-score"></div>
             </div>
-            <div id="podium-1" class="flex flex-col items-center mx-1 md:mx-4 opacity-0 z-20" style="visibility: hidden;">
-                <div class="text-7xl mb-2 animate-bounce" id="p1-avatar"></div>
+            <div id="podium-1" class="podium-hidden flex flex-col items-center mx-1 md:mx-4 z-20">
+                <div class="text-8xl mb-2 animate-bounce" id="p1-avatar"></div>
                 <div class="text-yellow-400 font-bold text-xl neon-gold truncate w-24 md:w-40" id="p1-name"></div>
                 <div class="w-24 md:w-40 h-48 bg-gradient-to-b from-yellow-600 to-yellow-800 rounded-t-lg border-t-4 border-yellow-400 flex items-end justify-center pb-4 shadow-[0_0_30px_rgba(234,179,8,0.4)]"><span class="text-5xl font-black text-yellow-900/50">1</span></div>
                 <div class="mt-2 text-yellow-400 text-2xl font-black" id="p1-score"></div>
             </div>
-            <div id="podium-3" class="flex flex-col items-center mx-1 md:mx-4 opacity-0" style="visibility: hidden;">
-                <div class="text-4xl mb-2" id="p3-avatar"></div>
+            <div id="podium-3" class="podium-hidden flex flex-col items-center mx-1 md:mx-4">
+                <div class="text-5xl mb-2" id="p3-avatar"></div>
                 <div class="text-white font-bold text-sm truncate w-20 md:w-32" id="p3-name"></div>
                 <div class="w-20 md:w-32 h-24 bg-orange-900 rounded-t-lg border-t-4 border-orange-700 flex items-end justify-center pb-2 shadow-lg"><span class="text-3xl font-black text-orange-900/50">3</span></div>
                 <div class="mt-2 text-cyan-400 font-bold" id="p3-score"></div>
@@ -175,7 +209,7 @@
         </div>
     </div>
 
-    <div id="view-rankings" class="w-full h-full hidden z-[101] bg-slate-950 absolute inset-0 flex flex-col p-6">
+    <div id="view-rankings" class="w-full h-full hidden absolute inset-0 flex flex-col p-6">
         <h2 class="text-3xl font-display text-cyan-400 text-center mb-6">FINAL RESULTS</h2>
         <div class="flex-1 overflow-y-auto bg-slate-900/50 rounded-xl border border-slate-800 p-4 max-w-2xl mx-auto w-full">
             <table class="w-full text-left border-collapse">
@@ -205,7 +239,6 @@
     const savedName = sessionStorage.getItem('ma_name');
     const savedAvatar = sessionStorage.getItem('ma_avatar');
     
-    // V30: S1 Topics
     let state = {
         role: 'none', 
         gameId: new URLSearchParams(window.location.search).get('gid'),
@@ -226,9 +259,12 @@
     function playTone(f,t,d){if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+d);o.stop(audioCtx.currentTime+d);}
 
     function showView(id) {
-        views.forEach(v => document.getElementById(v).classList.add('hidden'));
+        views.forEach(v => {
+            const el = document.getElementById(v);
+            if(el) el.classList.add('hidden');
+        });
         document.getElementById(id).classList.remove('hidden');
-        if(id.includes('host') || id === 'view-avatar-select' || id === 'view-rankings') document.getElementById(id).classList.add('flex');
+        if(id.includes('host') || id === 'view-avatar-select' || id === 'view-rankings' || id === 'view-podium') document.getElementById(id).classList.add('flex');
         if(id === 'view-game') resizeCanvas();
     }
 
@@ -261,14 +297,10 @@
         showView('view-host-lobby');
         
         const slider = document.getElementById('setting-slider');
-        slider.oninput = () => {
-            state.settings.target = parseInt(slider.value);
-            document.getElementById('setting-value').innerText = state.settings.target+" SEC";
-            if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
-        };
+        slider.oninput = () => updateSettingsDisplay();
         
-        // Defaults
-        slider.min=30; slider.max=180; slider.step=10; slider.value=60;
+        // Init Defaults
+        setMode('time');
         setTopic('integers');
 
         const ref = db.ref('games').push();
@@ -291,7 +323,7 @@
             document.getElementById('join-count-display').innerText = `${count} STUDENTS`;
             
             const startBtn = document.getElementById('btn-host-start');
-            if(count < 1) { // Dev mode: allow 1
+            if(count < 1) { 
                 startBtn.disabled = true;
                 startBtn.innerHTML = `⏳ WAIT (${count})`;
                 startBtn.className = "btn-primary mt-auto bg-slate-700 text-slate-500 cursor-not-allowed opacity-50";
@@ -312,18 +344,45 @@
         if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
     }
 
+    function setMode(mode) {
+        state.settings.mode = mode;
+        const slider = document.getElementById('setting-slider');
+        
+        document.getElementById('btn-mode-score').classList.toggle('active', mode === 'score');
+        document.getElementById('btn-mode-time').classList.toggle('active', mode === 'time');
+
+        if(mode==='score') { 
+            document.getElementById('setting-label').innerText="TARGET SCORE"; slider.min=500; slider.max=5000; slider.step=100; slider.value=1000; 
+        } else { 
+            document.getElementById('setting-label').innerText="TIME LIMIT"; slider.min=20; slider.max=180; slider.step=10; slider.value=60; 
+        }
+        updateSettingsDisplay();
+        if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
+    }
+
+    function updateSettingsDisplay() {
+        const slider = document.getElementById('setting-slider');
+        state.settings.target = parseInt(slider.value);
+        document.getElementById('setting-value').innerText = state.settings.mode==='score' ? state.settings.target+" PTS" : state.settings.target+" SEC";
+        if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
+    }
+
     function hostStartGame() {
         const updateData = { status: 'playing', startTime: Date.now() };
-        state.endTime = Date.now() + (state.settings.target * 1000);
-        updateData.endTime = state.endTime;
         
+        if(state.settings.mode === 'time') {
+            state.endTime = Date.now() + (state.settings.target * 1000);
+            updateData.endTime = state.endTime;
+        }
+
         db.ref(`games/${state.gameId}`).update(updateData);
         showView('view-host-game');
-        startLocalTicker(state.endTime, 'host-timer-display');
+        document.getElementById('host-target-display').innerText = state.settings.mode==='score' ? `TARGET: ${state.settings.target}` : "TIME LEFT";
+        startLocalTicker(state.settings.mode === 'time' ? state.endTime : null, 'host-timer-display');
         
         if (state.hostLoop) clearInterval(state.hostLoop);
         state.hostLoop = setInterval(() => {
-            if (Date.now() >= state.endTime) {
+            if (state.settings.mode === 'time' && Date.now() >= state.endTime) {
                 clearInterval(state.hostLoop);
                 executeGameFinish();
             }
@@ -339,14 +398,20 @@
             if(!game) return;
 
             if (game.status === 'results') {
-                showPodiumSequence(game.finalStandings);
+                if(game.finalStandings) showPodiumSequence(game.finalStandings);
                 gameRef.off(); 
                 if (state.hostLoop) clearInterval(state.hostLoop);
             }
 
             if(game.players) {
                 const players = Object.values(game.players).sort((a,b)=>(b.score||0)-(a.score||0));
-                renderLanes(players, game.settings.target);
+                
+                // Score Mode Win Check
+                if (state.role==='host' && game.status==='playing' && game.settings.mode==='score' && players[0].score >= game.settings.target) {
+                    executeGameFinish();
+                }
+
+                renderLanes(players, game.settings.target, game.settings.mode);
             }
         });
     }
@@ -370,15 +435,13 @@
         }, 1500);
     }
 
-    function renderLanes(players, target) {
+    function renderLanes(players, target, mode) {
         const container = document.getElementById('lanes-container');
-        // Dynamic scaling based on highest score
-        const topScore = players[0]?.score || 100;
-        const maxScale = Math.max(1000, topScore * 1.2);
+        const maxScore = mode==='score' ? target : Math.max(target*10, (players[0].score||0)*1.2); // Time mode scaling
         
         players.forEach((p, index) => {
             let el = document.getElementById(`lane-${p.name}`);
-            const pct = Math.min(100, ((p.score||0)/maxScale)*100);
+            const pct = Math.min(100, ((p.score||0)/maxScore)*100);
             if (!el) {
                 el = document.createElement('div');
                 el.id = `lane-${p.name}`;
@@ -407,12 +470,11 @@
             const btn = document.createElement('div');
             btn.className = 'avatar-btn';
             btn.id = `av-btn-${idx}`;
-            btn.innerText = av;
+            btn.innerHTML = `<span>${av}</span>`;
             btn.onclick = () => selectAvatar(av, idx);
             grid.appendChild(btn);
         });
         
-        // Check taken avatars
         db.ref(`games/${state.gameId}/players`).on('value', snap => {
             document.querySelectorAll('.avatar-btn').forEach(b => {
                 if(!b.classList.contains('selected')) b.classList.remove('taken');
@@ -491,7 +553,7 @@
         updateTime();
         localTimerInterval = setInterval(updateTime, 200);
         function updateTime() {
-            if(!endTime) return;
+            if(!endTime) { el.innerText = "RACE"; return; }
             const left = Math.ceil((endTime - Date.now()) / 1000);
             if(left <= 0) {
                 el.innerText = "00:00";
@@ -524,83 +586,72 @@
             if(op === '+') ans = a + b;
             else ans = a - b;
             
-            // Format: -5 + (-3)
-            const aStr = a < 0 ? `(${a})` : a;
+            // Format for easy reading: -5 + (-3)
             const bStr = b < 0 ? `(${b})` : b;
-            qStr = `${aStr} ${op} ${bStr} = ?`;
+            qStr = `${a} ${op} ${bStr} = ?`;
         }
         
-        // 2. Linear Equations (一元一次方程)
+        // 2. Algebra (一元一次方程)
         else if (t === 'algebra') {
+            const x = rInt(2, 12); 
             const type = Math.random();
-            const x = rInt(2, 12); // The answer x
-            if (type < 0.33) {
-                // ax = b
-                const a = rInt(2, 6);
-                const b = a * x;
-                qStr = `${a}x = ${b}, x = ?`;
-                ans = x;
-            } else if (type < 0.66) {
-                // x + a = b
-                const a = rInt(5, 20);
-                const b = x + a;
-                qStr = `x + ${a} = ${b}, x = ?`;
+            if (type < 0.4) {
+                const a = rInt(2, 5);
+                qStr = `${a}x = ${a*x}, x = ?`;
                 ans = x;
             } else {
-                // ax + b = c
-                const a = rInt(2, 5);
+                const a = rInt(2, 4);
                 const b = rInt(1, 10);
-                const c = (a * x) + b;
-                qStr = `${a}x + ${b} = ${c}, x = ?`;
+                const c = a * x + b;
+                qStr = `${a}x + ${b} = ${c}, x=?`;
                 ans = x;
             }
         }
         
         // 3. Percentages (百分數)
         else if (t === 'percent') {
-            const base = rInt(1, 10) * 100; // 100, 200...
-            const rate = rInt(1, 9) * 10;   // 10%, 20%...
+            const base = rInt(1, 10) * 100; 
+            const rate = rInt(1, 9) * 10;   
             ans = (rate / 100) * base;
             qStr = `${rate}% of ${base} = ?`;
         }
         
-        // 4. Geometry (Area/Vol) - Text Based
+        // 4. Geometry (Area/Vol)
         else if (t === 'geometry') {
             const shape = Math.random();
             if (shape < 0.4) {
                 const s = rInt(3, 12);
                 qStr = `Square side ${s}. Area?`;
                 ans = s * s;
-            } else if (shape < 0.8) {
+            } else if (shape < 0.7) {
                 const l = rInt(4, 10);
                 const w = rInt(2, 8);
-                qStr = `Rect ${l} by ${w}. Area?`;
+                qStr = `Rectangle ${l} by ${w}. Area?`;
                 ans = l * w;
             } else {
-                const l = rInt(2, 6);
-                const w = rInt(2, 5);
-                const h = rInt(2, 5);
+                const l = rInt(2, 5);
+                const w = rInt(2, 4);
+                const h = rInt(2, 4);
                 qStr = `Cuboid ${l}×${w}×${h}. Vol?`;
                 ans = l * w * h;
             }
         }
         
-        // 5. Coordinates (坐標) - Q1-Q4 or Simple Logic
+        // 5. Coordinates (坐標)
         else if (t === 'coords') {
-            const type = Math.random();
-            if (type < 0.5) {
+            if (Math.random() < 0.6) {
                 // Quadrant Check
                 let x = rInt(1, 9) * (Math.random()<.5?1:-1);
                 let y = rInt(1, 9) * (Math.random()<.5?1:-1);
-                qStr = `P(${x}, ${y}) is in Q?`;
+                qStr = `P(${x}, ${y}) is in Quadrant?`;
                 if(x>0 && y>0) ans = 1;
                 else if(x<0 && y>0) ans = 2;
                 else if(x<0 && y<0) ans = 3;
                 else ans = 4;
             } else {
-                // Distance to origin or simple math
-                const v = rInt(2, 9);
-                qStr = `Dist. from (${v}, 0) to O?`;
+                // Distance to origin (on axis)
+                const v = rInt(3, 15);
+                qStr = `Dist from (${v}, 0) to O?`;
                 ans = v;
             }
         }
@@ -634,7 +685,6 @@
 
     function checkAnswer() {
         if(!state.active) return;
-        // Allow float comparison
         const playerAns = parseFloat(state.input);
         const correct = Math.abs(playerAns - state.q.ans) < 0.01;
 
@@ -691,7 +741,7 @@
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Card
+        // Card Background
         ctx.fillStyle = '#1e293b'; 
         const cardW = Math.min(320, canvas.width - 20);
         const cardH = 180;
@@ -702,26 +752,30 @@
         ctx.roundRect(cardX, cardY, cardW, cardH, 20);
         ctx.fill();
         
-        // Border pulse
+        // Pulse Effect
         const time = Date.now() / 1000;
         ctx.lineWidth = 4;
         ctx.strokeStyle = `rgba(34, 211, 238, ${0.5 + Math.sin(time * 3) * 0.2})`;
         ctx.stroke();
 
-        // Text
-        const text = state.settings.topic === 'geometry' ? 24 : 32;
-        ctx.font = `bold ${text}px "Roboto Mono"`;
+        // Text Handling
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // Split long text if geometry
-        const words = (state.qText || "").split('. ');
-        if(words.length > 1) {
-            ctx.fillText(words[0], canvas.width/2, canvas.height/2 - 20);
-            ctx.fillText(words[1], canvas.width/2, canvas.height/2 + 20);
+        const qText = (state.qText || ""); // Global question text
+        if (qText.length > 15) {
+             ctx.font = `bold 22px "Roboto Mono"`; // Smaller font for long questions
+             const words = qText.split('. ');
+             if(words.length > 1) {
+                 ctx.fillText(words[0], canvas.width/2, canvas.height/2 - 15);
+                 ctx.fillText(words[1], canvas.width/2, canvas.height/2 + 15);
+             } else {
+                 ctx.fillText(qText, canvas.width/2, canvas.height/2);
+             }
         } else {
-            ctx.fillText(state.qText, canvas.width/2, canvas.height/2);
+            ctx.font = `bold 36px "Roboto Mono"`;
+            ctx.fillText(qText, canvas.width/2, canvas.height/2);
         }
     }
 
@@ -745,11 +799,12 @@
     function renderPodium(list) {
         if(!list) list = [];
         const ids = ['podium-1', 'podium-2', 'podium-3'];
+        
+        // Reset classes
         ids.forEach(id => {
             const el = document.getElementById(id);
-            el.classList.remove('podium-enter');
-            el.style.opacity = '0';
-            el.style.visibility = 'hidden';
+            el.className = 'podium-hidden flex flex-col items-center mx-1 md:mx-4'; 
+            if(id === 'podium-1') el.classList.add('z-20');
         });
 
         const showRank = (rankDivId, pData, delayIdx) => {
@@ -759,14 +814,17 @@
             
             document.getElementById(`p${rankNum}-name`).innerText = pData.name;
             document.getElementById(`p${rankNum}-avatar`).innerText = pData.avatar;
-            document.getElementById(`p${rankNum}-score`).innerText = pData.score;
-            el.style.visibility = 'visible';
-            setTimeout(() => { el.classList.add('podium-enter'); }, delayIdx * 200);
+            document.getElementById(`p${rankNum}-score`).innerText = pData.score + " PTS";
+            
+            setTimeout(() => { 
+                el.classList.remove('podium-hidden');
+                el.classList.add('podium-enter'); 
+            }, delayIdx * 300);
         };
 
-        if(list[0]) showRank('podium-1', list[0], 0);
-        if(list[1]) showRank('podium-2', list[1], 1);
-        if(list[2]) showRank('podium-3', list[2], 2);
+        if(list[0]) showRank('podium-1', list[0], 2); // 1st place last
+        if(list[1]) showRank('podium-2', list[1], 0);
+        if(list[2]) showRank('podium-3', list[2], 1);
     }
 
     function showFullRankingList(list) {
