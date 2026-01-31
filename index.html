@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Arena V35: Area + Trapezoids</title>
+    <title>Math Arena V36: Ultimate UI</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -23,40 +23,62 @@
         .lane-item { position: absolute; left: 0; right: 0; transition: top 0.5s ease-in-out; }
         .progress-bar { transition: width 0.3s linear; }
         
-        /* === UNIFIED BUTTON STYLES === */
-        .glow-btn-base {
-            @apply border border-slate-600 text-slate-400 rounded font-bold transition-all bg-slate-800 hover:bg-slate-700 relative overflow-hidden;
+        /* === V36 NEW GLOW BUTTON SYSTEM === */
+        /* Base Style for ALL setting buttons */
+        .glow-btn {
+            @apply border-2 border-slate-700 text-slate-500 rounded-xl font-bold transition-all bg-slate-800/50 relative overflow-hidden flex flex-col items-center justify-center py-4 text-xs md:text-sm uppercase tracking-wider;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
         }
+        .glow-btn:hover { @apply bg-slate-800 border-slate-600 text-slate-300; }
         
-        /* 1. Topic Buttons (Cyan Theme) */
-        .topic-btn { @apply glow-btn-base py-3 text-xs; }
-        .topic-btn.active { 
-            @apply border-cyan-300 text-white bg-cyan-900/80; 
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.5), inset 0 0 10px rgba(34, 211, 238, 0.2);
+        /* 1. Topic (Cyan) */
+        .glow-btn.cyan.active { 
+            @apply border-cyan-400 text-white bg-cyan-950/90;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.4), inset 0 0 10px rgba(34, 211, 238, 0.1);
             transform: scale(1.02); z-index: 1;
         }
 
-        /* 2. Setting Buttons (Unified Green Theme) */
-        .setting-btn { @apply glow-btn-base py-2 text-sm; }
-        .setting-btn.active { 
-            @apply border-green-400 text-white bg-green-900/80; 
-            box-shadow: 0 0 15px rgba(74, 222, 128, 0.6), inset 0 0 10px rgba(74, 222, 128, 0.3);
-            border-width: 2px;
+        /* 2. Mode (Green) */
+        .glow-btn.green.active { 
+            @apply border-green-400 text-white bg-green-950/90;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.4), inset 0 0 10px rgba(74, 222, 128, 0.1);
+            transform: scale(1.02); z-index: 1;
+        }
+
+        /* 3. Pool (Purple) */
+        .glow-btn.purple.active { 
+            @apply border-purple-400 text-white bg-purple-950/90;
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.4), inset 0 0 10px rgba(192, 132, 252, 0.1);
+            transform: scale(1.02); z-index: 1;
         }
 
         /* Main Action Button */
         .btn-primary { @apply bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-lg shadow-[0_0_15px_rgba(8,145,178,0.5)] transform transition active:scale-95 w-full mb-3; }
         
-        /* Avatar Selection */
+        /* === V36 AVATAR STYLES === */
+        .avatar-grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 4px;
+        }
         .avatar-btn { 
-            @apply text-6xl p-4 rounded-2xl border-2 border-slate-700 transition-all cursor-pointer grayscale opacity-60 bg-slate-800 flex justify-center items-center h-24 w-24 mx-auto; 
+            @apply text-7xl p-2 rounded-2xl border-2 border-slate-700 transition-all cursor-pointer grayscale opacity-60 bg-slate-800 flex justify-center items-center h-28 w-28 mx-auto shadow-md; 
         }
         .avatar-btn.selected { 
-            @apply bg-yellow-900/40 grayscale-0 opacity-100 scale-110 z-10; 
+            @apply bg-yellow-900/40 grayscale-0 opacity-100 scale-105 z-10; 
             border-color: #fbbf24; 
-            box-shadow: 0 0 30px 5px rgba(251, 191, 36, 0.6); 
+            box-shadow: 0 0 25px 5px rgba(251, 191, 36, 0.5); 
         }
         .avatar-btn.taken { @apply opacity-20 cursor-not-allowed border-red-900 bg-slate-900 scale-90 grayscale; }
+
+        /* Scrollbar polish */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
         /* Z-Index Layers */
         #view-game { z-index: 10; }
@@ -70,7 +92,7 @@
 <body class="h-screen flex flex-col items-center justify-center bg-[#050510]">
 
     <div id="view-menu" class="text-center space-y-6 p-4 max-w-md w-full hidden z-50">
-        <h1 class="text-5xl font-display italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-2 neon-text">MATH<br>ARENA V35</h1>
+        <h1 class="text-5xl font-display italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-2 neon-text">MATH<br>ARENA V36</h1>
         <div id="db-status" class="text-xs text-red-500 font-bold mb-4">🔴 Connecting...</div>
         <button onclick="setupHost()" class="btn-primary border-l-4 border-cyan-300 text-xl py-6">📡 HOST CLASS</button>
     </div>
@@ -89,30 +111,29 @@
                 <div class="mb-5">
                     <label class="block text-slate-400 text-xs mb-2 font-bold uppercase tracking-widest">1. Select Topic</label>
                     <div class="grid grid-cols-3 gap-3">
-                        <button class="topic-btn active" onclick="setTopic('integers')" id="btn-topic-integers">🔢 Integers</button>
-                        <button class="topic-btn" onclick="setTopic('algebra')" id="btn-topic-algebra">✖️ Algebra</button>
-                        <button class="topic-btn" onclick="setTopic('percent')" id="btn-topic-percent">％ Percent</button>
+                        <button class="glow-btn cyan active" onclick="setTopic('integers')" id="btn-topic-integers">🔢 Integers</button>
+                        <button class="glow-btn cyan" onclick="setTopic('algebra')" id="btn-topic-algebra">✖️ Algebra</button>
+                        <button class="glow-btn cyan" onclick="setTopic('percent')" id="btn-topic-percent">％ Percent</button>
                         
-                        <button class="topic-btn" onclick="setTopic('area')" id="btn-topic-area">🟦 Area (2D)</button>
-                        <button class="topic-btn" onclick="setTopic('volume')" id="btn-topic-volume">🧊 Volume (3D)</button>
-                        
-                        <button class="topic-btn" onclick="setTopic('mixed')" id="btn-topic-mixed">🎲 Mixed</button>
+                        <button class="glow-btn cyan" onclick="setTopic('area')" id="btn-topic-area">🟦 Area (2D)</button>
+                        <button class="glow-btn cyan" onclick="setTopic('volume')" id="btn-topic-volume">🧊 Volume (3D)</button>
+                        <button class="glow-btn cyan" onclick="setTopic('mixed')" id="btn-topic-mixed">🎲 Mixed</button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-5">
                     <div>
-                        <label class="block text-slate-400 text-xs mb-2 font-bold uppercase">2. End Condition</label>
+                        <label class="block text-slate-400 text-xs mb-2 font-bold uppercase tracking-widest">2. End Condition</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button class="setting-btn active" onclick="setMode('time')" id="btn-mode-time">⏱️ Time</button>
-                            <button class="setting-btn" onclick="setMode('score')" id="btn-mode-score">🏁 Score</button>
+                            <button class="glow-btn green active" onclick="setMode('time')" id="btn-mode-time">⏱️ Time</button>
+                            <button class="glow-btn green" onclick="setMode('score')" id="btn-mode-score">🏁 Score</button>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-slate-400 text-xs mb-2 font-bold uppercase">3. Question Pool</label>
+                        <label class="block text-slate-400 text-xs mb-2 font-bold uppercase tracking-widest">3. Question Pool</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button class="setting-btn" onclick="setSync('random')" id="btn-sync-random">🔀 Random</button>
-                            <button class="setting-btn active" onclick="setSync('sequence')" id="btn-sync-sequence">📜 Same Set</button>
+                            <button class="glow-btn purple" onclick="setSync('random')" id="btn-sync-random">🔀 Random</button>
+                            <button class="glow-btn purple active" onclick="setSync('sequence')" id="btn-sync-sequence">📜 Same Set</button>
                         </div>
                     </div>
                 </div>
@@ -146,19 +167,22 @@
         <button onclick="goToAvatarSelect()" class="btn-primary">NEXT</button>
     </div>
 
-    <div id="view-avatar-select" class="text-center p-6 max-w-lg w-full hidden z-50 flex-col">
+    <div id="view-avatar-select" class="text-center p-6 max-w-xl w-full hidden z-50 flex-col h-screen">
         <h2 class="text-xl font-bold mb-2 text-cyan-400">CHOOSE AVATAR</h2>
-        <div class="grid grid-cols-3 gap-4 mb-8" id="avatar-grid"></div>
-        <button onclick="confirmJoin()" class="btn-primary" id="btn-join-confirm" disabled>READY</button>
-        <button onclick="showView('view-join')" class="text-slate-500 underline mt-2">BACK</button>
+        <div class="avatar-grid-container mb-4" id="avatar-grid">
+            </div>
+        <div class="mt-auto w-full">
+            <button onclick="confirmJoin()" class="btn-primary py-4 text-xl" id="btn-join-confirm" disabled>READY</button>
+            <button onclick="showView('view-join')" class="text-slate-500 underline mt-2">BACK</button>
+        </div>
     </div>
 
     <div id="view-student-wait" class="text-center p-6 w-full hidden z-50">
         <div class="text-6xl mb-4 animate-bounce">⏳</div>
         <h2 class="text-2xl font-bold text-white mb-2">WAITING...</h2>
         <div class="mt-8 p-6 bg-slate-900 rounded-xl border border-slate-700 flex flex-col items-center shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-            <div id="my-final-avatar" class="text-7xl mb-4 p-4 rounded-full bg-slate-800 border-2 border-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.4)]"></div>
-            <span id="my-final-name" class="font-bold text-2xl text-cyan-400 font-display"></span>
+            <div id="my-final-avatar" class="text-8xl mb-4 p-4 rounded-full bg-slate-800 border-2 border-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.4)]"></div>
+            <span id="my-final-name" class="font-bold text-3xl text-cyan-400 font-display"></span>
             <div class="mt-4 text-slate-500 text-sm">Look at the big screen</div>
         </div>
     </div>
@@ -281,7 +305,14 @@
 
     let localTimerInterval = null;
     const views = ['view-menu','view-host-lobby','view-host-game','view-join','view-avatar-select','view-student-wait','view-game','view-podium','view-rankings'];
-    const AVATAR_OPTIONS = ['🐯','🐰','🦁','🦄','🦖','👽','🤖','🐼','🦊','🐨','🐮','🐷'];
+    
+    // === V36 UPDATE: 36 AVATARS ===
+    const AVATAR_OPTIONS = [
+        '🐯','🐰','🦁','🦄','🦖','👽','🤖','🐼','🦊','🐨','🐮','🐷',
+        '🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗',
+        '🐴','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂','🐢'
+    ];
+    
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTone(f,t,d){if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+d);o.stop(audioCtx.currentTime+d);}
 
@@ -366,7 +397,7 @@
 
     function setTopic(topic) {
         state.settings.topic = topic;
-        document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('#view-host-lobby .cyan').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`btn-topic-${topic}`).classList.add('active');
         if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
     }
@@ -375,12 +406,9 @@
         state.settings.mode = mode;
         const slider = document.getElementById('setting-slider');
         
-        document.querySelectorAll('.setting-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('btn-mode-score').classList.toggle('active', mode === 'score');
-        document.getElementById('btn-mode-time').classList.toggle('active', mode === 'time');
-        
-        document.getElementById('btn-sync-random').classList.toggle('active', state.settings.sync === 'random');
-        document.getElementById('btn-sync-sequence').classList.toggle('active', state.settings.sync === 'sequence');
+        // Update Green Buttons
+        document.querySelectorAll('#view-host-lobby .green').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-mode-${mode}`).classList.add('active');
 
         if(mode==='score') { 
             document.getElementById('setting-label').innerText="TARGET SCORE"; slider.min=500; slider.max=5000; slider.step=100; slider.value=1000; 
@@ -393,8 +421,9 @@
 
     function setSync(type) {
         state.settings.sync = type;
-        document.getElementById('btn-sync-random').classList.toggle('active', type === 'random');
-        document.getElementById('btn-sync-sequence').classList.toggle('active', type === 'sequence');
+        // Update Purple Buttons
+        document.querySelectorAll('#view-host-lobby .purple').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-sync-${type}`).classList.add('active');
         if(state.gameId) db.ref(`games/${state.gameId}/settings`).update(state.settings);
     }
 
