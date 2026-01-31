@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Math Arena V25: List Fix</title>
+    <title>Math Arena V26: Responsive</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -19,81 +19,93 @@
         .font-display { font-family: 'Black Ops One', cursive; }
         .neon-text { text-shadow: 0 0 10px #22d3ee; }
         
-        .btn-primary { @apply bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(8,145,178,0.5)] transform transition active:scale-95 w-full mb-4 text-2xl; }
-        .btn-topic { @apply bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-cyan-400 font-bold py-6 rounded-2xl shadow-lg transition-all active:scale-95 flex flex-col items-center justify-center gap-2; }
-        .avatar-btn { @apply text-6xl p-6 rounded-2xl border-4 border-slate-700 transition-all cursor-pointer grayscale opacity-60 bg-slate-800 flex items-center justify-center; }
-        .avatar-btn.selected { @apply grayscale-0 opacity-100 scale-110 z-10 text-black; background-color: #fbbf24; border-color: #f59e0b; box-shadow: 0 0 30px rgba(251, 191, 36, 0.8); }
-        .key-btn { @apply active:scale-95 transition-transform shadow-lg text-3xl font-bold rounded-xl border-b-4 border-slate-950 active:border-b-0 active:translate-y-1; }
+        /* 按鈕響應式調整：手機上文字稍微小一點，iPad 上大一點 */
+        .btn-primary { @apply bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 md:py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(8,145,178,0.5)] transform transition active:scale-95 w-full mb-4 text-xl md:text-2xl; }
+        .btn-topic { @apply bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-cyan-400 font-bold py-4 md:py-6 rounded-2xl shadow-lg transition-all active:scale-95 flex flex-col items-center justify-center gap-2; }
         
-        /* 列表項目樣式 */
-        .lane-item { @apply w-full bg-slate-800 rounded-xl flex items-center px-4 py-2 border border-slate-600 shadow-md mb-2; }
+        /* 列表項目：確保寬度適應 */
+        .lane-item { @apply w-full bg-slate-800 rounded-xl flex items-center px-3 py-2 md:px-4 md:py-3 border border-slate-600 shadow-md mb-2 transition-all; }
         
         #canvas-container { position: relative; width: 100%; height: 100%; flex: 1; overflow: hidden; background-color: #1e293b; border-radius: 0 0 1rem 1rem; }
         canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         
+        /* 自定義滾動條樣式，讓 iPad 看起來更現代 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
         @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col items-center justify-center bg-[#050510]">
 
     <div id="view-menu" class="text-center p-8 w-full max-w-2xl hidden flex-col items-center z-50">
-        <h1 class="text-8xl font-display italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4 neon-text">MATH<br>ARENA</h1>
-        <div class="text-3xl text-slate-400 font-display mb-12">HK S1 V25</div>
+        <h1 class="text-6xl md:text-8xl font-display italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4 neon-text">MATH<br>ARENA</h1>
+        <div class="text-xl md:text-3xl text-slate-400 font-display mb-8 md:mb-12">HK S1 V26</div>
         <div id="db-status" class="text-lg text-red-500 font-bold mb-8">🔴 Connecting...</div>
-        <button onclick="setupHost()" class="btn-primary border-l-8 border-cyan-300 text-3xl py-8">📡 HOST GAME</button>
+        <button onclick="setupHost()" class="btn-primary border-l-8 border-cyan-300">📡 HOST GAME</button>
     </div>
 
-    <div id="view-topic-select" class="w-full h-full p-8 hidden flex-col max-w-6xl mx-auto z-50">
-        <h2 class="text-4xl text-cyan-400 font-display mb-6 text-center">SELECT TOPIC</h2>
-        <div class="grid grid-cols-3 gap-6 overflow-y-auto pb-20 flex-1">
-            <button onclick="selectTopic('area')" class="btn-topic"><span class="text-5xl">📐</span><span class="text-xl">AREA & SHAPES</span></button>
-            <button onclick="selectTopic('volume')" class="btn-topic"><span class="text-5xl">📦</span><span class="text-xl">VOLUME</span></button>
-            <button onclick="selectTopic('equation')" class="btn-topic"><span class="text-5xl">⚖️</span><span class="text-xl">LINEAR EQ</span></button>
-            <button onclick="selectTopic('percent')" class="btn-topic"><span class="text-5xl">💯</span><span class="text-xl">PERCENTAGE</span></button>
-            <button onclick="selectTopic('directed')" class="btn-topic"><span class="text-5xl">➕➖</span><span class="text-xl">DIRECTED NOS</span></button>
-            <button onclick="selectTopic('angles')" class="btn-topic"><span class="text-5xl">📏</span><span class="text-xl">ANGLES</span></button>
-            <button onclick="selectTopic('coord')" class="btn-topic"><span class="text-5xl">🌐</span><span class="text-xl">COORDINATES</span></button>
+    <div id="view-topic-select" class="w-full h-full p-4 md:p-8 hidden flex-col max-w-6xl mx-auto z-50">
+        <h2 class="text-3xl md:text-4xl text-cyan-400 font-display mb-4 md:mb-6 text-center">SELECT TOPIC</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 overflow-y-auto pb-20 flex-1">
+            <button onclick="selectTopic('area')" class="btn-topic"><span class="text-4xl md:text-5xl">📐</span><span class="text-lg md:text-xl">AREA</span></button>
+            <button onclick="selectTopic('volume')" class="btn-topic"><span class="text-4xl md:text-5xl">📦</span><span class="text-lg md:text-xl">VOLUME</span></button>
+            <button onclick="selectTopic('equation')" class="btn-topic"><span class="text-4xl md:text-5xl">⚖️</span><span class="text-lg md:text-xl">LINEAR EQ</span></button>
+            <button onclick="selectTopic('percent')" class="btn-topic"><span class="text-4xl md:text-5xl">💯</span><span class="text-lg md:text-xl">PERCENT</span></button>
+            <button onclick="selectTopic('directed')" class="btn-topic"><span class="text-4xl md:text-5xl">➕➖</span><span class="text-lg md:text-xl">DIRECTED</span></button>
+            <button onclick="selectTopic('angles')" class="btn-topic"><span class="text-4xl md:text-5xl">📏</span><span class="text-lg md:text-xl">ANGLES</span></button>
+            <button onclick="selectTopic('coord')" class="btn-topic"><span class="text-4xl md:text-5xl">🌐</span><span class="text-lg md:text-xl">COORD</span></button>
         </div>
     </div>
 
-    <div id="view-host-lobby" class="w-full h-full p-6 hidden flex-col max-w-6xl mx-auto">
-        <div class="flex justify-between items-end border-b-2 border-slate-700 pb-4 mb-6">
-            <h2 class="text-4xl text-cyan-400 font-display">LOBBY</h2>
-            <div class="text-2xl text-yellow-400 font-bold" id="lobby-topic-display">TOPIC: ???</div>
+    <div id="view-host-lobby" class="w-full h-full p-4 md:p-6 hidden flex-col max-w-7xl mx-auto">
+        <div class="flex justify-between items-end border-b-2 border-slate-700 pb-2 md:pb-4 mb-4 md:mb-6 shrink-0">
+            <h2 class="text-3xl md:text-4xl text-cyan-400 font-display">LOBBY</h2>
+            <div class="text-lg md:text-2xl text-yellow-400 font-bold" id="lobby-topic-display">TOPIC: ???</div>
         </div>
-        <div class="grid grid-cols-2 gap-8 h-full">
-            <div class="bg-slate-900 p-8 rounded-2xl border-2 border-slate-700 flex flex-col items-center shadow-xl">
-                <div class="bg-white p-4 rounded-xl mb-6 shadow-inner"><div id="qrcode"></div></div>
-                <div class="text-3xl font-bold text-white mb-4" id="join-count-display">0 PLAYERS</div>
-                <div id="player-grid" class="flex-1 w-full overflow-y-auto bg-slate-950/50 p-4 rounded-xl flex flex-wrap content-start gap-3"></div>
+        
+        <div class="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 flex-1 overflow-hidden">
+            
+            <div class="bg-slate-900 p-4 md:p-8 rounded-2xl border-2 border-slate-700 flex flex-col items-center shadow-xl overflow-hidden h-full">
+                <div class="bg-white p-2 md:p-4 rounded-xl mb-4 shadow-inner shrink-0">
+                    <div id="qrcode" class="scale-90 md:scale-100 origin-center"></div>
+                </div>
+                <div class="text-2xl md:text-3xl font-bold text-white mb-4 shrink-0" id="join-count-display">0 PLAYERS</div>
+                <div id="player-grid" class="flex-1 w-full overflow-y-auto bg-slate-950/50 p-2 md:p-4 rounded-xl flex flex-wrap content-start gap-2 md:gap-3">
+                    </div>
             </div>
-            <div class="bg-slate-900 p-8 rounded-2xl border-2 border-slate-700 flex flex-col shadow-xl">
-                <div class="mb-8">
-                    <label class="block text-slate-400 text-lg mb-3 font-bold">MODE</label>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button class="border-2 border-slate-600 text-slate-300 py-4 rounded-xl text-xl font-bold" onclick="setMode('score')">🏁 Score</button>
-                        <button class="border-2 border-cyan-500 text-cyan-400 bg-cyan-900/30 py-4 rounded-xl text-xl font-bold" onclick="setMode('time')">⏱️ Time</button>
+
+            <div class="bg-slate-900 p-4 md:p-8 rounded-2xl border-2 border-slate-700 flex flex-col shadow-xl h-auto md:h-full justify-center shrink-0">
+                <div class="mb-4 md:mb-8">
+                    <label class="block text-slate-400 text-base md:text-lg mb-2 font-bold">MODE</label>
+                    <div class="grid grid-cols-2 gap-3 md:gap-4">
+                        <button class="border-2 border-slate-600 text-slate-300 py-3 md:py-4 rounded-xl text-lg md:text-xl font-bold" onclick="setMode('score')">🏁 Score</button>
+                        <button class="border-2 border-cyan-500 text-cyan-400 bg-cyan-900/30 py-3 md:py-4 rounded-xl text-lg md:text-xl font-bold" onclick="setMode('time')">⏱️ Time</button>
                     </div>
                 </div>
-                <div class="mb-8">
-                    <label class="block text-slate-400 text-lg mb-3 font-bold">LIMIT</label>
+                <div class="mb-6 md:mb-8">
+                    <label class="block text-slate-400 text-base md:text-lg mb-2 font-bold">LIMIT</label>
                     <input type="range" id="setting-slider" min="20" max="180" step="10" value="60" class="w-full h-4 bg-slate-700 rounded-lg cursor-pointer accent-cyan-500" oninput="updateSetting(this.value)">
-                    <div class="text-right text-cyan-400 text-4xl font-bold mt-4" id="setting-value">60 SEC</div>
+                    <div class="text-right text-cyan-400 text-3xl md:text-4xl font-bold mt-2 md:mt-4" id="setting-value">60 SEC</div>
                 </div>
-                <button id="btn-host-start" onclick="hostStartGame()" class="btn-primary mt-auto bg-slate-700 text-slate-500 cursor-not-allowed opacity-50" disabled>⏳ WAIT FOR PLAYERS</button>
+                <button id="btn-host-start" onclick="hostStartGame()" class="btn-primary mt-auto bg-slate-700 text-slate-500 cursor-not-allowed opacity-50 text-xl md:text-3xl py-4 md:py-8" disabled>⏳ WAIT</button>
             </div>
         </div>
     </div>
 
-    <div id="view-host-game" class="w-full h-full p-6 hidden flex-col bg-slate-950 relative">
-        <div class="flex justify-between items-center mb-6 px-6 py-4 bg-slate-900 rounded-2xl border-2 border-slate-700 shrink-0 shadow-lg">
-            <div class="font-display text-4xl italic text-slate-300">LIVE RANKING</div>
-            <div class="text-7xl font-mono font-bold text-cyan-400 neon-text" id="host-timer-display">00:00</div>
+    <div id="view-host-game" class="w-full h-full p-4 md:p-6 hidden flex-col bg-slate-950 relative">
+        <div class="flex justify-between items-center mb-4 md:mb-6 px-4 py-2 md:px-6 md:py-4 bg-slate-900 rounded-2xl border-2 border-slate-700 shrink-0 shadow-lg">
+            <div class="font-display text-2xl md:text-4xl italic text-slate-300">LIVE</div>
+            <div class="text-5xl md:text-7xl font-mono font-bold text-cyan-400 neon-text" id="host-timer-display">00:00</div>
         </div>
-        <div class="flex-1 w-full overflow-y-auto px-4 pb-32 space-y-2" id="lanes-container" style="-webkit-overflow-scrolling: touch;"></div>
         
-        <div id="host-status-msg" class="absolute bottom-1/2 left-0 w-full text-center pointer-events-none opacity-0 transition-opacity duration-500 z-50">
-            <span class="bg-black/90 text-yellow-400 px-12 py-6 rounded-full text-5xl font-bold border-4 border-yellow-500 shadow-2xl backdrop-blur-sm">🛑 TIME UP</span>
+        <div class="flex-1 w-full overflow-y-auto px-2 md:px-4 pb-32 space-y-2 bg-slate-900/30 rounded-xl border border-slate-800" id="lanes-container" style="-webkit-overflow-scrolling: touch;">
+            </div>
+        
+        <div id="host-status-msg" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none opacity-0 transition-opacity duration-500 z-50">
+            <span class="bg-black/90 text-yellow-400 px-8 py-4 md:px-12 md:py-6 rounded-full text-3xl md:text-5xl font-bold border-4 border-yellow-500 shadow-2xl backdrop-blur-sm">🛑 TIME UP</span>
         </div>
     </div>
 
@@ -105,7 +117,7 @@
 
     <div id="view-avatar-select" class="text-center p-8 max-w-2xl w-full hidden z-50 flex-col">
         <h2 class="text-3xl font-bold mb-6 text-cyan-400">CHOOSE AVATAR</h2>
-        <div class="grid grid-cols-4 gap-6 mb-10" id="avatar-grid"></div>
+        <div class="grid grid-cols-4 gap-4 md:gap-6 mb-10" id="avatar-grid"></div>
         <button onclick="confirmJoin()" class="btn-primary" id="btn-join-confirm" disabled>READY</button>
     </div>
 
@@ -126,9 +138,9 @@
             <div class="text-slate-400 text-xl">Look at Host Screen</div>
         </div>
         
-        <div class="h-20 bg-slate-950 border-b-2 border-slate-800 flex justify-between items-center px-6 shrink-0 shadow-lg z-20">
-            <div class="text-cyan-400 font-bold text-3xl" id="client-score">0 PTS</div>
-            <div class="text-slate-400 font-mono text-3xl" id="client-timer-display">--:--</div>
+        <div class="h-16 md:h-20 bg-slate-950 border-b-2 border-slate-800 flex justify-between items-center px-4 md:px-6 shrink-0 shadow-lg z-20">
+            <div class="text-cyan-400 font-bold text-2xl md:text-3xl" id="client-score">0 PTS</div>
+            <div class="text-slate-400 font-mono text-2xl md:text-3xl" id="client-timer-display">--:--</div>
         </div>
         
         <div id="canvas-container" class="shadow-inner">
@@ -136,30 +148,55 @@
             <div id="feedback-msg" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl font-black opacity-0 pointer-events-none z-30 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] stroke-black"></div>
         </div>
         
-        <div class="bg-slate-900 border-t-2 border-slate-800 p-3 h-[45%] grid grid-rows-[auto_1fr] gap-3 z-10 shrink-0">
-            <div class="bg-slate-800 rounded-xl p-4 flex flex-col justify-center items-center relative border-2 border-slate-700 shadow-inner">
-                <div id="input-display" class="text-5xl font-mono font-bold tracking-[0.2em] text-white min-h-[3.5rem]">_</div>
-                <div id="hint-display" class="text-xl text-yellow-500/90 font-mono mt-1 font-bold"></div>
+        <div class="bg-slate-900 border-t-2 border-slate-800 p-2 md:p-3 h-[45%] md:h-[40%] grid grid-rows-[auto_1fr] gap-2 md:gap-3 z-10 shrink-0">
+            <div class="bg-slate-800 rounded-xl p-2 md:p-4 flex flex-col justify-center items-center relative border-2 border-slate-700 shadow-inner">
+                <div id="input-display" class="text-4xl md:text-5xl font-mono font-bold tracking-[0.2em] text-white min-h-[3rem]">_</div>
+                <div id="hint-display" class="text-lg md:text-xl text-yellow-500/90 font-mono mt-1 font-bold"></div>
             </div>
             <div class="grid grid-cols-3 gap-2 h-full pb-safe" id="keypad-grid"></div>
         </div>
     </div>
 
-    <div id="view-podium" class="text-center w-full hidden z-[200] bg-slate-950 absolute inset-0 flex flex-col items-center justify-center">
-        <h1 class="text-7xl font-display text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 mb-16 neon-text z-10">CHAMPIONS</h1>
-        <div class="flex items-end justify-center w-full max-w-6xl px-4 z-10 gap-4" id="podium-container">
-            <div id="podium-2" class="flex flex-col items-center w-1/4 opacity-0 transform translate-y-full transition-all duration-700"><div class="text-6xl mb-4" id="p2-avatar"></div><div class="text-white text-xl font-bold mb-2" id="p2-name"></div><div class="w-full h-40 bg-slate-700 rounded-t-xl border-t-8 border-slate-400 flex items-end justify-center pb-4 shadow-2xl"><span class="text-5xl font-black text-slate-500/50">2</span></div><div class="text-cyan-400 font-bold text-2xl mt-2" id="p2-score"></div></div>
-            <div id="podium-1" class="flex flex-col items-center w-1/3 opacity-0 transform translate-y-full transition-all duration-700 z-20"><div class="text-9xl mb-6 animate-bounce" id="p1-avatar"></div><div class="text-yellow-400 font-bold text-3xl mb-2 neon-text" id="p1-name"></div><div class="w-full h-64 bg-gradient-to-b from-yellow-600 to-yellow-800 rounded-t-xl border-t-8 border-yellow-400 flex items-end justify-center pb-6 shadow-2xl"><span class="text-7xl font-black text-yellow-900/40">1</span></div><div class="text-yellow-400 text-4xl font-black mt-2" id="p1-score"></div></div>
-            <div id="podium-3" class="flex flex-col items-center w-1/4 opacity-0 transform translate-y-full transition-all duration-700"><div class="text-6xl mb-4" id="p3-avatar"></div><div class="text-white text-xl font-bold mb-2" id="p3-name"></div><div class="w-full h-32 bg-orange-900 rounded-t-xl border-t-8 border-orange-700 flex items-end justify-center pb-4 shadow-2xl"><span class="text-5xl font-black text-orange-900/50">3</span></div><div class="text-cyan-400 font-bold text-2xl mt-2" id="p3-score"></div></div>
+    <div id="view-podium" class="text-center w-full hidden z-[200] bg-slate-950 absolute inset-0 flex flex-col items-center justify-center p-4">
+        <h1 class="text-5xl md:text-7xl font-display text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 mb-8 md:mb-16 neon-text z-10">CHAMPIONS</h1>
+        <div class="flex items-end justify-center w-full max-w-6xl z-10 gap-2 md:gap-4" id="podium-container">
+            <div id="podium-2" class="flex flex-col items-center w-1/4 opacity-0 transform translate-y-full transition-all duration-700">
+                <div class="text-4xl md:text-6xl mb-2 md:mb-4" id="p2-avatar"></div>
+                <div class="text-white text-sm md:text-xl font-bold mb-1 md:mb-2 truncate w-full" id="p2-name"></div>
+                <div class="w-full h-28 md:h-40 bg-slate-700 rounded-t-xl border-t-8 border-slate-400 flex items-end justify-center pb-4 shadow-2xl">
+                    <span class="text-4xl md:text-5xl font-black text-slate-500/50">2</span>
+                </div>
+                <div class="text-cyan-400 font-bold text-lg md:text-2xl mt-2" id="p2-score"></div>
+            </div>
+            
+            <div id="podium-1" class="flex flex-col items-center w-1/3 opacity-0 transform translate-y-full transition-all duration-700 z-20">
+                <div class="text-7xl md:text-9xl mb-4 md:mb-6 animate-bounce" id="p1-avatar"></div>
+                <div class="text-yellow-400 font-bold text-xl md:text-3xl mb-1 md:mb-2 neon-text truncate w-full" id="p1-name"></div>
+                <div class="w-full h-48 md:h-64 bg-gradient-to-b from-yellow-600 to-yellow-800 rounded-t-xl border-t-8 border-yellow-400 flex items-end justify-center pb-6 shadow-2xl">
+                    <span class="text-6xl md:text-7xl font-black text-yellow-900/40">1</span>
+                </div>
+                <div class="text-yellow-400 text-2xl md:text-4xl font-black mt-2" id="p1-score"></div>
+            </div>
+            
+            <div id="podium-3" class="flex flex-col items-center w-1/4 opacity-0 transform translate-y-full transition-all duration-700">
+                <div class="text-4xl md:text-6xl mb-2 md:mb-4" id="p3-avatar"></div>
+                <div class="text-white text-sm md:text-xl font-bold mb-1 md:mb-2 truncate w-full" id="p3-name"></div>
+                <div class="w-full h-20 md:h-32 bg-orange-900 rounded-t-xl border-t-8 border-orange-700 flex items-end justify-center pb-4 shadow-2xl">
+                    <span class="text-4xl md:text-5xl font-black text-orange-900/50">3</span>
+                </div>
+                <div class="text-cyan-400 font-bold text-lg md:text-2xl mt-2" id="p3-score"></div>
+            </div>
         </div>
     </div>
     
-    <div id="view-rankings" class="w-full h-full hidden z-[201] bg-slate-950 absolute inset-0 flex flex-col p-10">
-        <h2 class="text-5xl font-display text-cyan-400 text-center mb-10">FINAL STANDINGS</h2>
-        <div class="flex-1 overflow-y-auto bg-slate-900/80 rounded-2xl border-2 border-slate-800 p-6 max-w-4xl mx-auto w-full shadow-2xl">
-            <table class="w-full text-left border-collapse text-2xl"><tbody id="ranking-list-body"></tbody></table>
+    <div id="view-rankings" class="w-full h-full hidden z-[201] bg-slate-950 absolute inset-0 flex flex-col p-6 md:p-10">
+        <h2 class="text-3xl md:text-5xl font-display text-cyan-400 text-center mb-6 md:mb-10">FINAL STANDINGS</h2>
+        <div class="flex-1 overflow-y-auto bg-slate-900/80 rounded-2xl border-2 border-slate-800 p-4 md:p-6 max-w-4xl mx-auto w-full shadow-2xl">
+            <table class="w-full text-left border-collapse text-xl md:text-2xl">
+                <tbody id="ranking-list-body"></tbody>
+            </table>
         </div>
-        <div class="mt-8 text-center"><button onclick="location.reload()" class="btn-primary max-w-md bg-slate-700 text-xl">🏠 RETURN HOME</button></div>
+        <div class="mt-6 md:mt-8 text-center"><button onclick="location.reload()" class="btn-primary max-w-md bg-slate-700 text-lg md:text-xl">🏠 RETURN HOME</button></div>
     </div>
 
 <script>
@@ -217,19 +254,19 @@
         ref.set({ status: 'lobby', settings: state.settings });
         show('view-host-lobby');
         document.getElementById('lobby-topic-display').innerText = "TOPIC: " + t.toUpperCase();
-        new QRCode(document.getElementById("qrcode"), { text: `${location.origin}${location.pathname}?gid=${state.gid}`, width:160, height:160 });
+        new QRCode(document.getElementById("qrcode"), { text: `${location.origin}${location.pathname}?gid=${state.gid}`, width:128, height:128 });
         
         db.ref(`games/${state.gid}/players`).on('value', snap => {
             const grid=document.getElementById('player-grid'); grid.innerHTML=''; 
             let c=0; 
             if(snap.exists()) {
-                snap.forEach(x => { c++; grid.innerHTML += `<div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-600 flex gap-3 items-center shadow"><span class="text-3xl">${x.val().avatar}</span><span class="font-bold text-xl">${x.val().name}</span></div>`; });
+                snap.forEach(x => { c++; grid.innerHTML += `<div class="bg-slate-800 px-3 py-1 md:px-4 md:py-2 rounded-lg border border-slate-600 flex gap-2 items-center shadow"><span class="text-2xl md:text-3xl">${x.val().avatar}</span><span class="font-bold text-base md:text-xl text-white">${x.val().name}</span></div>`; });
             }
             document.getElementById('join-count-display').innerText = `${c} PLAYERS`;
             const btn = document.getElementById('btn-host-start');
             btn.disabled = c < 1;
-            btn.className = c<1 ? "btn-primary mt-auto bg-slate-700 opacity-50" : "btn-primary mt-auto bg-green-600 hover:bg-green-500 py-6 text-3xl shadow-green-900/50";
-            btn.innerText = c<1 ? `⏳ WAIT (${c}/2)` : "🚀 START GAME";
+            btn.className = c<1 ? "btn-primary mt-auto bg-slate-700 opacity-50 text-xl md:text-3xl py-4 md:py-8" : "btn-primary mt-auto bg-green-600 hover:bg-green-500 text-xl md:text-3xl py-4 md:py-8 shadow-green-900/50";
+            btn.innerText = c<1 ? `⏳ WAIT (${c})` : "🚀 START GAME";
         });
         setMode('time');
     }
@@ -256,29 +293,25 @@
             } else { document.getElementById('host-timer-display').innerText = "RACE"; }
         }, 500);
 
-        // LIVE RANKING 修復重點：
-        // 1. 回到 V20 的「字串拼接」模式，這能確保所有玩家一次性被渲染出來，不會遺漏。
-        // 2. 加入 Math.max(..., 1) 防止除以零錯誤。
         db.ref(`games/${state.gid}/players`).on('value', snap => {
             const arr = []; 
             if(snap.exists()) snap.forEach(c => arr.push(c.val()));
             arr.sort((a,b) => (b.score||0)-(a.score||0));
             
-            // 安全計算最大值，防止是 0 導致錯誤
             const max = state.settings.mode==='score' ? state.settings.target : Math.max(state.settings.target*10, (arr[0]?.score||0)*1.2, 1);
             if(state.settings.mode==='score' && arr[0]?.score >= state.settings.target) { clearInterval(timerLoop); finishGame(); }
 
-            // 關鍵修改：使用 map + join 一次生成所有 HTML，確保不會因為 DOM 操作過慢而只顯示一個人
+            // 使用 V18/V25 的字串拼接，但調整了 CSS class 以適應響應式
             const html = arr.map(p => {
                 const width = Math.min(100, (p.score/max)*100);
                 return `
-                <div class="lane-item">
-                    <div class="w-12 text-4xl mr-4">${p.avatar}</div>
-                    <div class="w-32 truncate font-bold text-xl text-slate-300">${p.name}</div>
-                    <div class="flex-1 h-6 bg-slate-900 rounded-full mx-4 border border-slate-700 overflow-hidden relative">
+                <div class="lane-item group">
+                    <div class="w-8 md:w-12 text-2xl md:text-4xl mr-2 md:mr-4">${p.avatar}</div>
+                    <div class="w-20 md:w-32 truncate font-bold text-base md:text-xl text-slate-300">${p.name}</div>
+                    <div class="flex-1 h-4 md:h-6 bg-slate-900 rounded-full mx-2 md:mx-4 border border-slate-700 overflow-hidden relative">
                         <div class="h-full bg-cyan-500 shadow-[0_0_15px_#06b6d4] transition-all duration-500" style="width:${width}%"></div>
                     </div>
-                    <div class="w-24 text-right font-mono font-bold text-cyan-400 text-3xl">${p.score}</div>
+                    <div class="w-16 md:w-24 text-right font-mono font-bold text-cyan-400 text-xl md:text-3xl">${p.score}</div>
                 </div>`;
             }).join('');
             
@@ -306,10 +339,14 @@
         AUDIO.resume(); show('view-avatar-select');
         const grid = document.getElementById('avatar-grid'); grid.innerHTML='';
         AVATARS.forEach(a => {
-            const b=document.createElement('div'); b.className='avatar-btn'; b.innerText=a;
+            const b=document.createElement('div'); 
+            b.className='text-5xl md:text-6xl p-4 md:p-6 rounded-2xl border-4 border-slate-700 transition-all cursor-pointer grayscale opacity-60 bg-slate-800 flex items-center justify-center'; 
+            b.innerText=a;
             b.onclick=()=> { 
-                document.querySelectorAll('.avatar-btn').forEach(x=>x.classList.remove('selected')); 
-                b.classList.add('selected'); state.av=a; 
+                document.querySelectorAll('#avatar-grid div').forEach(x=>{x.classList.remove('grayscale-0','opacity-100','scale-110','text-black','bg-amber-400','border-amber-500','shadow-lg'); x.classList.add('grayscale','opacity-60','bg-slate-800');}); 
+                b.classList.remove('grayscale','opacity-60','bg-slate-800');
+                b.classList.add('grayscale-0','opacity-100','scale-110','text-black','bg-amber-400','border-amber-500','shadow-lg');
+                state.av=a; 
                 document.getElementById('btn-join-confirm').disabled=false;
                 playTone(600, 'sine', 0.1); 
             };
@@ -366,14 +403,17 @@
 
     function setupKeypad(topic) {
         const grid = document.getElementById('keypad-grid'); grid.innerHTML = '';
-        [7,8,9,4,5,6,1,2,3].forEach(n => grid.innerHTML += `<button class="key-btn bg-slate-800 text-cyan-100 active:bg-cyan-700" onclick="input('${n}')">${n}</button>`);
+        const btnClass = "active:scale-95 transition-transform shadow-lg text-2xl md:text-3xl font-bold rounded-xl border-b-4 border-slate-950 active:border-b-0 active:translate-y-1 bg-slate-800 text-cyan-100 active:bg-cyan-700";
+        const delClass = "active:scale-95 transition-transform shadow-lg text-2xl md:text-3xl font-bold rounded-xl border-b-4 border-slate-950 active:border-b-0 active:translate-y-1 bg-rose-900/40 text-rose-500";
+        
+        [7,8,9,4,5,6,1,2,3].forEach(n => grid.innerHTML += `<button class="${btnClass}" onclick="input('${n}')">${n}</button>`);
         if(['equation','directed','coord'].includes(topic)) {
-            grid.innerHTML += `<button class="key-btn bg-slate-700 text-yellow-400" onclick="input('-')">-</button>`;
-            grid.innerHTML += `<button class="key-btn bg-slate-800 text-cyan-100" onclick="input('0')">0</button>`;
-            grid.innerHTML += `<button class="key-btn bg-rose-900/40 text-rose-500" onclick="input('DEL')">DEL</button>`;
+            grid.innerHTML += `<button class="active:scale-95 transition-transform shadow-lg text-2xl md:text-3xl font-bold rounded-xl border-b-4 border-slate-950 active:border-b-0 active:translate-y-1 bg-slate-700 text-yellow-400" onclick="input('-')">-</button>`;
+            grid.innerHTML += `<button class="${btnClass}" onclick="input('0')">0</button>`;
+            grid.innerHTML += `<button class="${delClass}" onclick="input('DEL')">DEL</button>`;
         } else {
-             grid.innerHTML += `<button class="key-btn bg-rose-900/40 text-rose-500" onclick="input('DEL')">DEL</button>`;
-             grid.innerHTML += `<button class="key-btn bg-slate-800 text-cyan-100" onclick="input('0')">0</button>`;
+             grid.innerHTML += `<button class="${delClass}" onclick="input('DEL')">DEL</button>`;
+             grid.innerHTML += `<button class="${btnClass}" onclick="input('0')">0</button>`;
              grid.innerHTML += `<div class="bg-transparent"></div>`;
         }
         grid.innerHTML += `<button class="col-span-3 bg-gradient-to-b from-emerald-600 to-emerald-800 text-white rounded-xl font-bold text-3xl py-3 active:translate-y-1 shadow-lg mt-1" onclick="checkAnswer()">GO</button>`;
@@ -416,9 +456,7 @@
 
     function draw() {
         const w=cvs.width, h=cvs.height;
-        const cx=w/2; 
-        // V25 保留：題目位置上移 (35%)
-        const cy=h*0.35; 
+        const cx=w/2; const cy=h*0.35; 
 
         if(w===0 || h===0) return;
         
@@ -491,7 +529,7 @@
             show('view-rankings');
             const b = document.getElementById('ranking-list-body'); b.innerHTML='';
             list.forEach((p,i) => {
-                b.innerHTML += `<tr class="border-b border-slate-700 text-slate-300 animate-[pop_0.5s]"><td class="p-4">${i+1}</td><td class="p-4 flex gap-4"><span class="text-3xl">${p.avatar}</span><b>${p.name}</b></td><td class="p-4 text-right font-mono font-bold text-cyan-400">${p.score}</td></tr>`;
+                b.innerHTML += `<tr class="border-b border-slate-700 text-slate-300 animate-[pop_0.5s]"><td class="p-2 md:p-4 font-mono font-bold text-slate-500">${i+1}</td><td class="p-2 md:p-4 flex gap-2 md:gap-4 items-center"><span class="text-2xl md:text-3xl">${p.avatar}</span><b class="truncate max-w-[150px] md:max-w-none">${p.name}</b></td><td class="p-2 md:p-4 text-right font-mono font-bold text-cyan-400">${p.score}</td></tr>`;
             });
         }, 7000);
     }
