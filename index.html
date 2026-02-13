@@ -926,7 +926,9 @@ else if (q.shape === 'tri_angle') {
     const base = 140, height = 110;
     const left = cx - base/2, right = cx + base/2, topY = cy - height/2, botY = cy + height/2;
     
-    // 畫三角形
+    // 1. Draw the Triangle Perimeter
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3;
     ctx.beginPath(); 
     ctx.moveTo(left, botY); 
     ctx.lineTo(right, botY); 
@@ -934,16 +936,31 @@ else if (q.shape === 'tri_angle') {
     ctx.closePath(); 
     ctx.stroke();
 
-    // 標註已知角度和 x
-    ctx.fillStyle = '#fff'; // 已知角1 (頂角)
-    ctx.fillText(`${q.v1}°`, cx, topY + 35);
+    // 2. Add Angle Markers (Arcs)
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
     
-    ctx.fillStyle = '#fff'; // 已知角2 (右底角)
-    ctx.fillText(`${q.v2}°`, right - 25, botY - 15);
+    // Top Angle Arc
+    ctx.beginPath(); ctx.arc(cx, topY, 25, 0.4 * Math.PI, 0.6 * Math.PI); ctx.stroke();
+    // Left Angle Arc
+    ctx.beginPath(); ctx.arc(left, botY, 25, 1.7 * Math.PI, 2 * Math.PI); ctx.stroke();
+    // Right Angle Arc
+    ctx.beginPath(); ctx.arc(right, botY, 25, Math.PI, 1.3 * Math.PI); ctx.stroke();
+
+    // 3. Place Degree Labels
+    ctx.font = "bold 18px 'Roboto Mono'";
+    ctx.textBaseline = 'middle';
     
-    ctx.fillStyle = '#22d3ee'; // 未知角 x (左底角)
-    ctx.font = "bold 24px 'Roboto Mono'";
-    ctx.fillText(`x`, left + 25, botY - 15);
+    ctx.fillStyle = '#fff'; 
+    // Top Vertex Label (v1)
+    ctx.fillText(`${q.v1}°`, cx, topY + 40);
+    // Right Vertex Label (v2)
+    ctx.fillText(`${q.v2}°`, right - 40, botY - 15);
+    
+    // Target Angle Label (x)
+    ctx.fillStyle = '#22d3ee'; 
+    ctx.font = "bold 22px 'Roboto Mono'";
+    ctx.fillText(`x`, left + 40, botY - 15);
 }
         else if (q.shape === 'square') {
             const size = 100;
